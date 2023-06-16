@@ -32,6 +32,12 @@ linkedin_username: pushkarnim
 theme: minima
 plugins:
   - jekyll-feed
+  - jekyll-analytics
+
+jekyll_analytics:
+  GoogleAnalytics:
+    id: G-CH946XLWGY
+    anonymizeIp: false
 
 # Exclude from processing.
 # The following items will not be processed, by default.
