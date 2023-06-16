@@ -28,16 +28,12 @@ twitter_username: pushkarnim
 github_username:  pushkarnimkar
 linkedin_username: pushkarnim
 
+google_analytics: G-CH946XLWGY
+
 # Build settings
 theme: minima
 plugins:
   - jekyll-feed
-  - jekyll-analytics
-
-jekyll_analytics:
-  GoogleAnalytics:
-    id: G-CH946XLWGY
-    anonymizeIp: false
 
 # Exclude from processing.
 # The following items will not be processed, by default.
