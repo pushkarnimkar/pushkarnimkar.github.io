@@ -1,0 +1,19 @@
+---
+layout: page
+---
+
+<link rel="stylesheet" href="/assets/css/about.css">
+
+<div class="row">
+  {% if page.profile %}
+  <div class="column">
+    {% if page.profile.image %}
+      <img class="one" src="{{ page.profile.image | prepend: '/assets/img/' | prepend: site.baseurl | prepend: site.url }}">
+    {% endif %}
+  </div>
+  {% endif %}
+  <div class="column">
+    {{ content }}
+  </div>
+</div>
+
