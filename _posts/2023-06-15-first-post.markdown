@@ -6,7 +6,7 @@ categories: update
 ---
 Hello, there. Thanks for stopping by!
 
-Stay tuned, some really cool posts coming really soon...
+Stay tuned, some cool posts coming really soon...
 
 :wq
 
