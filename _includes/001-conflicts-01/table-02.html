@@ -1,0 +1,67 @@
+<style>.itables table td {
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+.itables table th {
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+.itables thead input {
+    width: 100%;
+    padding: 3px;
+    box-sizing: border-box;
+}
+
+.itables tfoot input {
+    width: 100%;
+    padding: 3px;
+    box-sizing: border-box;
+}
+</style>
+<div class="itables" style="overflow-x: scroll;">
+<table id="ce688bee-f13f-4a0f-94d7-24538dcc90e1" class="display nowrap" style="table-layout:auto;width:auto;margin:auto;caption-side:bottom"><thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>dyads</th>
+      <th>deaths</th>
+      <th>gov1_dyads</th>
+      <th>gov1_deaths</th>
+      <th>gov2_dyads</th>
+      <th>gov2_deaths</th>
+      <th>other_dyads</th>
+      <th>other_deaths</th>
+    </tr>
+    <tr>
+      <th>country</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead><tbody><tr><td>Loading... (need <a href=https://mwouts.github.io/itables/troubleshooting.html>help</a>?)</td></tr></tbody></table>
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.1/css/jquery.dataTables.min.css">
+<script type="module">
+    // Import jquery and DataTable
+    import 'https://code.jquery.com/jquery-3.6.0.min.js';
+    import dt from 'https://cdn.datatables.net/1.12.1/js/jquery.dataTables.mjs';
+    dt($);
+
+    // Define the table data
+    const data = [["Afghanistan", 41844, 316692, 40006, 307791, 0, 0, 1838, 8901], ["Albania", 4, 6, 4, 6, 0, 0, 0, 0], ["Algeria", 4177, 21243, 3846, 19010, 0, 0, 331, 2233], ["Angola", 2096, 33308, 1828, 30957, 0, 0, 268, 2351], ["Argentina", 2, 86, 1, 0, 0, 0, 1, 86], ["Armenia", 68, 370, 68, 370, 0, 0, 0, 0], ["Australia", 2, 2, 1, 1, 0, 0, 1, 1], ["Austria", 1, 4, 0, 0, 0, 0, 1, 4], ["Azerbaijan", 788, 14014, 786, 13240, 0, 0, 2, 774], ["Bahrain", 24, 26, 24, 26, 0, 0, 0, 0], ["Bangladesh", 623, 1388, 307, 675, 0, 0, 316, 713], ["Belgium", 5, 38, 3, 5, 0, 0, 2, 33], ["Benin", 16, 43, 15, 42, 0, 0, 1, 1], ["Bhutan", 2, 4, 1, 4, 0, 0, 1, 0], ["Bolivia", 11, 53, 0, 0, 0, 0, 11, 53], ["Bosnia-Herzegovina", 9340, 63535, 9104, 50126, 0, 0, 236, 13409], ["Botswana", 1, 1, 1, 1, 0, 0, 0, 0], ["Brazil", 3482, 14501, 31, 110, 0, 0, 3451, 14391], ["Burkina Faso", 911, 6743, 596, 4618, 0, 0, 315, 2125], ["Burundi", 2022, 21925, 1525, 15524, 0, 0, 497, 6401], ["Cambodia (Kampuchea)", 546, 5071, 463, 4381, 7, 17, 76, 673], ["Cameroon", 1643, 7690, 1130, 5726, 9, 70, 504, 1894], ["Canada", 35, 93, 0, 0, 0, 0, 35, 93], ["Central African Republic", 1848, 14948, 593, 4964, 0, 0, 1255, 9984], ["Chad", 429, 11113, 308, 9123, 0, 0, 121, 1990], ["China", 38, 2925, 35, 2738, 0, 0, 3, 187], ["Colombia", 9053, 36583, 5581, 24395, 0, 0, 3472, 12188], ["Comoros", 7, 125, 4, 85, 0, 0, 3, 40], ["Congo", 239, 15668, 206, 15502, 0, 0, 33, 166], ["Croatia", 157, 1478, 157, 1478, 0, 0, 0, 0], ["DR Congo (Zaire)", 7220, 128832, 3216, 64597, 0, 0, 4004, 64235], ["Djibouti", 61, 516, 53, 439, 2, 35, 6, 42], ["Ecuador", 25, 472, 2, 27, 4, 11, 19, 434], ["Egypt", 1153, 6065, 915, 4707, 0, 0, 238, 1358], ["El Salvador", 186, 5989, 115, 5865, 0, 0, 71, 124], ["Eritrea", 53, 19940, 32, 152, 21, 19788, 0, 0], ["Ethiopia", 3808, 299973, 3273, 210146, 13, 78429, 522, 11398], ["France", 18, 249, 9, 11, 0, 0, 9, 238], ["Gambia", 5, 10, 5, 10, 0, 0, 0, 0], ["Georgia", 258, 3431, 242, 3241, 0, 0, 16, 190], ["Germany", 5, 20, 4, 8, 0, 0, 1, 12], ["Ghana", 41, 2446, 0, 0, 0, 0, 41, 2446], ["Guatemala", 480, 2813, 462, 2651, 0, 0, 18, 162], ["Guinea", 83, 1148, 62, 884, 0, 0, 21, 264], ["Guinea-Bissau", 22, 706, 22, 706, 0, 0, 0, 0], ["Guyana", 3, 29, 0, 0, 0, 0, 3, 29], ["Haiti", 190, 1296, 60, 731, 0, 0, 130, 565], ["Honduras", 44, 316, 0, 0, 0, 0, 44, 316], ["India", 17391, 59666, 11537, 39787, 637, 2181, 5217, 17698], ["Indonesia", 1823, 8759, 1559, 5614, 0, 0, 264, 3145], ["Iran", 510, 2671, 507, 2469, 2, 177, 1, 25], ["Iraq", 8713, 126655, 6905, 77645, 146, 29190, 1662, 19820], ["Israel", 3771, 9453, 3413, 8255, 0, 0, 358, 1198], ["Italy", 1, 0, 1, 0, 0, 0, 0, 0], ["Ivory Coast", 360, 3599, 224, 1862, 0, 0, 136, 1737], ["Jamaica", 29, 144, 0, 0, 0, 0, 29, 144], ["Jordan", 8, 98, 6, 36, 0, 0, 2, 62], ["Kenya", 1126, 6302, 438, 1101, 0, 0, 688, 5201], ["Kingdom of eSwatini (Swaziland)", 20, 55, 20, 55, 0, 0, 0, 0], ["Kuwait", 40, 1816, 14, 286, 25, 1504, 1, 26], ["Kyrgyzstan", 55, 343, 22, 194, 8, 105, 25, 44], ["Laos", 24, 385, 24, 385, 0, 0, 0, 0], ["Lebanon", 1132, 5994, 746, 3506, 0, 0, 386, 2488], ["Lesotho", 5, 78, 5, 78, 0, 0, 0, 0], ["Liberia", 551, 23247, 199, 7287, 0, 0, 352, 15960], ["Libya", 1261, 13998, 742, 9009, 0, 0, 519, 4989], ["Macedonia, FYR", 55, 81, 55, 81, 0, 0, 0, 0], ["Madagascar (Malagasy)", 47, 234, 9, 73, 0, 0, 38, 161], ["Malaysia", 15, 71, 14, 71, 0, 0, 1, 0], ["Mali", 1798, 13615, 1186, 8041, 0, 0, 612, 5574], ["Malta", 1, 0, 1, 0, 0, 0, 0, 0], ["Mauritania", 34, 189, 27, 82, 0, 0, 7, 107], ["Mexico", 14336, 94904, 89, 351, 0, 0, 14247, 94553], ["Moldova", 77, 585, 77, 585, 0, 0, 0, 0], ["Morocco", 22, 282, 20, 248, 0, 0, 2, 34], ["Mozambique", 1202, 10061, 650, 7041, 0, 0, 552, 3020], ["Myanmar (Burma)", 5259, 25052, 4991, 22389, 0, 0, 268, 2663], ["Namibia", 19, 63, 8, 55, 0, 0, 11, 8], ["Nepal", 5655, 12356, 4528, 11097, 0, 0, 1127, 1259], ["Netherlands", 2, 2, 2, 2, 0, 0, 0, 0], ["Nicaragua", 27, 565, 27, 565, 0, 0, 0, 0], ["Niger", 487, 5302, 328, 3882, 0, 0, 159, 1420], ["Nigeria", 6241, 66396, 2949, 28273, 0, 0, 3292, 38123], ["Pakistan", 6771, 44074, 5304, 34810, 429, 936, 1038, 8328], ["Panama", 3, 920, 1, 77, 2, 843, 0, 0], ["Papua New Guinea", 135, 751, 104, 391, 0, 0, 31, 360], ["Paraguay", 5, 157, 1, 150, 0, 0, 4, 7], ["Peru", 887, 7804, 672, 6968, 22, 88, 193, 748], ["Philippines", 4163, 20836, 3729, 19390, 1, 1, 433, 1445], ["Poland", 1, 2, 0, 0, 1, 2, 0, 0], ["Qatar", 1, 0, 1, 0, 0, 0, 0, 0], ["Romania", 16, 448, 16, 448, 0, 0, 0, 0], ["Russia (Soviet Union)", 3794, 25666, 3637, 24459, 27, 55, 130, 1152], ["Rwanda", 2582, 793489, 2444, 780583, 0, 0, 138, 12906], ["Saudi Arabia", 166, 555, 143, 368, 4, 91, 19, 96], ["Senegal", 308, 2195, 193, 1614, 0, 0, 115, 581], ["Serbia (Yugoslavia)", 1210, 8793, 831, 6860, 0, 0, 379, 1933], ["Sierra Leone", 1497, 20444, 757, 12225, 0, 0, 740, 8219], ["Solomon Islands", 1, 2, 1, 2, 0, 0, 0, 0], ["Somalia", 6444, 57834, 5207, 44963, 0, 0, 1237, 12871], ["South Africa", 2879, 5570, 442, 772, 0, 0, 2437, 4798], ["South Sudan", 974, 14308, 665, 7645, 19, 130, 290, 6533], ["Spain", 147, 416, 143, 209, 0, 0, 4, 207], ["Sri Lanka", 4581, 65628, 4184, 62021, 0, 0, 397, 3607], ["Sudan", 3475, 98508, 2531, 66713, 8, 238, 936, 31557], ["Sweden", 1, 5, 0, 0, 0, 0, 1, 5], ["Syria", 85716, 407392, 74204, 348033, 105, 740, 11407, 58619], ["Tajikistan", 325, 9452, 282, 8879, 35, 111, 8, 462], ["Tanzania", 47, 156, 39, 115, 0, 0, 8, 41], ["Thailand", 2780, 4325, 1317, 2351, 17, 35, 1446, 1939], ["Togo", 115, 624, 110, 565, 0, 0, 5, 59], ["Trinidad and Tobago", 3, 39, 3, 39, 0, 0, 0, 0], ["Tunisia", 123, 428, 118, 346, 0, 0, 5, 82], ["Turkey", 6478, 31393, 6072, 29707, 0, 0, 406, 1686], ["Uganda", 1688, 17081, 1076, 10276, 0, 0, 612, 6805], ["Ukraine", 7882, 90965, 3277, 9453, 4604, 81467, 1, 45], ["United Arab Emirates", 2, 4, 2, 4, 0, 0, 0, 0], ["United Kingdom", 198, 333, 110, 179, 0, 0, 88, 154], ["United States of America", 9, 3016, 2, 233, 0, 0, 7, 2783], ["Uzbekistan", 32, 400, 32, 400, 0, 0, 0, 0], ["Venezuela", 1441, 1498, 1425, 1289, 0, 0, 16, 209], ["Yemen (North Yemen)", 4666, 64425, 4083, 60638, 2, 1, 581, 3786], ["Zambia", 38, 136, 3, 8, 0, 0, 35, 128], ["Zimbabwe (Rhodesia)", 68, 326, 62, 275, 0, 0, 6, 51]];
+
+    // Define the dt_args
+    let dt_args = {"order": []};
+    dt_args["data"] = data;
+
+    $(document).ready(function () {
+        
+        $('#ce688bee-f13f-4a0f-94d7-24538dcc90e1').DataTable(dt_args);
+    });
+</script>
+</div>

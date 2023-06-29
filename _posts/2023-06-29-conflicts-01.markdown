@@ -1,0 +1,420 @@
+---
+layout: post
+title: Understanding armed-conflicts with data and machine learning - 01
+date: 2023-06-29 00:58:31 -0400
+categories: project,conflict
+---
+
+This project utilizes machine learning techniques to understand lifecycle of armed conflicts. This work is an extension of my [STA561](https://ericlaber.github.io/) project which was inspired by [Prof. Becker](https://sites.duke.edu/charlesbecker/)'s working [paper](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3160015) about [Bosnian War](https://en.wikipedia.org/wiki/Bosnian_War).
+
+The dataset used in the project is not available in public domain. In this project, I'll start over the analysis using datasets available in public domain. [Uppsala Conflict Data Program (UCDP)](https://ucdp.uu.se/encyclopedia) provides disaggregated (event-level) data on armed conflicts worldwide. In this work, we shall start with [UCDP Georeferenced Event Dataset](https://ucdp.uu.se/downloads/index.html#ged_global) version 23.1 (latest as of June 27th, 2023) and add supplementary datasets as required.
+
+This project will be split across multiple notebooks. In this notebook, we shall focus on exploratory analysis of UCDP data
+
+# Exploratory Analysis - UCDP
+
+As per the UCDP [codebook](https://ucdp.uu.se/downloads/ged/ged231.pdf), a conflict-event is defined as follows:
+
+1. **Armed force:** use of arms in order to promote the parties’ general position in the conflict.
+2. **Organized actor:** a government of an independent state, a formally organized group or an informally organized group according to UCDP criteria (see codebook for details).
+3. **Direct death:** a death relating to either combat between warring parties or violence against civilians.
+4. **Specific location:**  a name and one pair of latitude and longitude coordinates that relate to the geographical information specified in the source material.
+5. **Specific date:** a specified time period during which armed interactions cause at least 1 fatality. The normal temporal unit to which an event can be related is a 24-hour day starting at midnight.
+
+
+
+```python
+%run setup.py
+```
+
+
+```python
+ged_path = 'data/Upassala-GED/GEDEvent_v23_1.csv'
+geodist_anim_path = 'cache/01/geodist-anim.html'
+```
+
+
+```python
+ged = pd.read_csv(ged_path, parse_dates = ['date_start', 'date_end'],
+                  dtype={'gwnoa': str, 'gwnob': str})
+print('ged.shape = ', ged.shape)
+sample = ged.sample(5, random_state=101)
+itables.show(sample.apply(
+    lambda x: x if x.dtype is not np.dtype('O') else x.apply(str_trunc)
+).T)
+
+```
+
+    ged.shape =  (316818, 49)
+
+
+{% include 001-conflicts-01/table-01.html %}
+
+## Type of Violence Distribution
+
+Each row of the UCDP data frame (or column of the above sample) records one [dyad](https://www.merriam-webster.com/dictionary/dyad). A conflict may consist of multiple dyads as there can be multiple parties (organized groups/governments) at a fight. Since each row represents a dyad, it has two conflicting sides: `side_a` and `side_b`. The `type_of_violence` encodes information about the participaing parties. The codebooks provides following interpretation:
+
+1. state-based conflict
+2. non-state conflict
+3. one-sided violence
+
+In state-based conflicts, `side_a` is always a government. In one-sided violence, it is always the perpetrating party. `side_b` gives name of Side B in the dyad. In state-based violence, it is always the rebel movement or rivalling government. In one-sided violence it is always "civilians". In the next cell, we shall check distribution of `type_of_violence`:
+
+
+
+
+```python
+fig, ax = plt.subplots()
+(ged
+ .groupby('type_of_violence')
+ .count()
+ .rename({1: 'state-based', 
+          2: 'non-state based', 
+          3: 'one-sided'}, axis=0)['id']
+ .rename(None)
+ .plot.pie(ax=ax, autopct='%1.1f%%'))
+ax.set_title('Distribution of type_of_violence')
+plt.show()
+
+```
+
+
+    
+![png](/assets/img/001-conflicts-01/output_6_0.png)
+    
+
+
+## Geographic Distribution
+
+Following animation shows spatio-temporal distribution of conflicts across the world. The number of conflicts in UCDP dataset has increased over time. This can represent either increasing intensity of conflicts over time or improving coverage of curators of the dataset or a combination of the two factors. Some of the well-known unfortunate events such as the Syrian war and recent Ukrainian war can be seen on the map.
+
+
+```python
+if not os.path.exists(geodist_anim_path):
+    print('running animate')
+    %run animate.py $ged_path $geodist_anim_path
+with open(geodist_anim_path) as anim_file:
+    anim_html = anim_file.read()
+display(HTML(anim_html))
+
+```
+
+
+
+<link rel="stylesheet"
+href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+<script language="javascript">
+  function isInternetExplorer() {
+    ua = navigator.userAgent;
+    /* MSIE used to detect old browsers and Trident used to newer ones*/
+    return ua.indexOf("MSIE ") > -1 || ua.indexOf("Trident/") > -1;
+  }
+
+  /* Define the Animation class */
+  function Animation(frames, img_id, slider_id, interval, loop_select_id){
+    this.img_id = img_id;
+    this.slider_id = slider_id;
+    this.loop_select_id = loop_select_id;
+    this.interval = interval;
+    this.current_frame = 0;
+    this.direction = 0;
+    this.timer = null;
+    this.frames = new Array(frames.length);
+
+    for (var i=0; i<frames.length; i++)
+    {
+     this.frames[i] = new Image();
+     this.frames[i].src = frames[i];
+    }
+    var slider = document.getElementById(this.slider_id);
+    slider.max = this.frames.length - 1;
+    if (isInternetExplorer()) {
+        // switch from oninput to onchange because IE <= 11 does not conform
+        // with W3C specification. It ignores oninput and onchange behaves
+        // like oninput. In contrast, Microsoft Edge behaves correctly.
+        slider.setAttribute('onchange', slider.getAttribute('oninput'));
+        slider.setAttribute('oninput', null);
+    }
+    this.set_frame(this.current_frame);
+  }
+
+  Animation.prototype.get_loop_state = function(){
+    var button_group = document[this.loop_select_id].state;
+    for (var i = 0; i < button_group.length; i++) {
+        var button = button_group[i];
+        if (button.checked) {
+            return button.value;
+        }
+    }
+    return undefined;
+  }
+
+  Animation.prototype.set_frame = function(frame){
+    this.current_frame = frame;
+    document.getElementById(this.img_id).src =
+            this.frames[this.current_frame].src;
+    document.getElementById(this.slider_id).value = this.current_frame;
+  }
+
+  Animation.prototype.next_frame = function()
+  {
+    this.set_frame(Math.min(this.frames.length - 1, this.current_frame + 1));
+  }
+
+  Animation.prototype.previous_frame = function()
+  {
+    this.set_frame(Math.max(0, this.current_frame - 1));
+  }
+
+  Animation.prototype.first_frame = function()
+  {
+    this.set_frame(0);
+  }
+
+  Animation.prototype.last_frame = function()
+  {
+    this.set_frame(this.frames.length - 1);
+  }
+
+  Animation.prototype.slower = function()
+  {
+    this.interval /= 0.7;
+    if(this.direction > 0){this.play_animation();}
+    else if(this.direction < 0){this.reverse_animation();}
+  }
+
+  Animation.prototype.faster = function()
+  {
+    this.interval *= 0.7;
+    if(this.direction > 0){this.play_animation();}
+    else if(this.direction < 0){this.reverse_animation();}
+  }
+
+  Animation.prototype.anim_step_forward = function()
+  {
+    this.current_frame += 1;
+    if(this.current_frame < this.frames.length){
+      this.set_frame(this.current_frame);
+    }else{
+      var loop_state = this.get_loop_state();
+      if(loop_state == "loop"){
+        this.first_frame();
+      }else if(loop_state == "reflect"){
+        this.last_frame();
+        this.reverse_animation();
+      }else{
+        this.pause_animation();
+        this.last_frame();
+      }
+    }
+  }
+
+  Animation.prototype.anim_step_reverse = function()
+  {
+    this.current_frame -= 1;
+    if(this.current_frame >= 0){
+      this.set_frame(this.current_frame);
+    }else{
+      var loop_state = this.get_loop_state();
+      if(loop_state == "loop"){
+        this.last_frame();
+      }else if(loop_state == "reflect"){
+        this.first_frame();
+        this.play_animation();
+      }else{
+        this.pause_animation();
+        this.first_frame();
+      }
+    }
+  }
+
+  Animation.prototype.pause_animation = function()
+  {
+    this.direction = 0;
+    if (this.timer){
+      clearInterval(this.timer);
+      this.timer = null;
+    }
+  }
+
+  Animation.prototype.play_animation = function()
+  {
+    this.pause_animation();
+    this.direction = 1;
+    var t = this;
+    if (!this.timer) this.timer = setInterval(function() {
+        t.anim_step_forward();
+    }, this.interval);
+  }
+
+  Animation.prototype.reverse_animation = function()
+  {
+    this.pause_animation();
+    this.direction = -1;
+    var t = this;
+    if (!this.timer) this.timer = setInterval(function() {
+        t.anim_step_reverse();
+    }, this.interval);
+  }
+</script>
+
+<style>
+.animation {
+    display: inline-block;
+    text-align: center;
+}
+input[type=range].anim-slider {
+    width: 374px;
+    margin-left: auto;
+    margin-right: auto;
+}
+.anim-buttons {
+    margin: 8px 0px;
+}
+.anim-buttons button {
+    padding: 0;
+    width: 36px;
+}
+.anim-state label {
+    margin-right: 8px;
+}
+.anim-state input {
+    margin: 0;
+    vertical-align: middle;
+}
+</style>
+
+<div class="animation">
+  <img id="_anim_img8a749248fafe48e0968147d10f670a03">
+  <div class="anim-controls">
+    <input id="_anim_slider8a749248fafe48e0968147d10f670a03" type="range" class="anim-slider"
+           name="points" min="0" max="1" step="1" value="0"
+           oninput="anim8a749248fafe48e0968147d10f670a03.set_frame(parseInt(this.value));">
+    <div class="anim-buttons">
+      <button title="Decrease speed" aria-label="Decrease speed" onclick="anim8a749248fafe48e0968147d10f670a03.slower()">
+          <i class="fa fa-minus"></i></button>
+      <button title="First frame" aria-label="First frame" onclick="anim8a749248fafe48e0968147d10f670a03.first_frame()">
+        <i class="fa fa-fast-backward"></i></button>
+      <button title="Previous frame" aria-label="Previous frame" onclick="anim8a749248fafe48e0968147d10f670a03.previous_frame()">
+          <i class="fa fa-step-backward"></i></button>
+      <button title="Play backwards" aria-label="Play backwards" onclick="anim8a749248fafe48e0968147d10f670a03.reverse_animation()">
+          <i class="fa fa-play fa-flip-horizontal"></i></button>
+      <button title="Pause" aria-label="Pause" onclick="anim8a749248fafe48e0968147d10f670a03.pause_animation()">
+          <i class="fa fa-pause"></i></button>
+      <button title="Play" aria-label="Play" onclick="anim8a749248fafe48e0968147d10f670a03.play_animation()">
+          <i class="fa fa-play"></i></button>
+      <button title="Next frame" aria-label="Next frame" onclick="anim8a749248fafe48e0968147d10f670a03.next_frame()">
+          <i class="fa fa-step-forward"></i></button>
+      <button title="Last frame" aria-label="Last frame" onclick="anim8a749248fafe48e0968147d10f670a03.last_frame()">
+          <i class="fa fa-fast-forward"></i></button>
+      <button title="Increase speed" aria-label="Increase speed" onclick="anim8a749248fafe48e0968147d10f670a03.faster()">
+          <i class="fa fa-plus"></i></button>
+    </div>
+    <form title="Repetition mode" aria-label="Repetition mode" action="#n" name="_anim_loop_select8a749248fafe48e0968147d10f670a03"
+          class="anim-state">
+      <input type="radio" name="state" value="once" id="_anim_radio1_8a749248fafe48e0968147d10f670a03"
+             >
+      <label for="_anim_radio1_8a749248fafe48e0968147d10f670a03">Once</label>
+      <input type="radio" name="state" value="loop" id="_anim_radio2_8a749248fafe48e0968147d10f670a03"
+             checked>
+      <label for="_anim_radio2_8a749248fafe48e0968147d10f670a03">Loop</label>
+      <input type="radio" name="state" value="reflect" id="_anim_radio3_8a749248fafe48e0968147d10f670a03"
+             >
+      <label for="_anim_radio3_8a749248fafe48e0968147d10f670a03">Reflect</label>
+    </form>
+  </div>
+</div>
+
+
+<script language="javascript">
+  /* Instantiate the Animation class. */
+  /* The IDs given should match those used in the template above. */
+  (function() {
+    var img_id = "_anim_img8a749248fafe48e0968147d10f670a03";
+    var slider_id = "_anim_slider8a749248fafe48e0968147d10f670a03";
+    var loop_select_id = "_anim_loop_select8a749248fafe48e0968147d10f670a03";
+    var frames = new Array(34);
+
+  for (var i=0; i<34; i++){
+    frames[i] = "/assets/img/001-conflicts-01/geodist-anim_frames/frame" 
+                + ("0000000" + i).slice(-7) + ".png";
+  }
+
+
+    /* set a timeout to make sure all the above elements are created before
+       the object is initialized. */
+    setTimeout(function() {
+        anim8a749248fafe48e0968147d10f670a03 = new Animation(frames, img_id, slider_id, 1000,
+                                 loop_select_id);
+    }, 0);
+  })()
+</script>
+
+
+
+Next, we shall examine the country-level conflict data. At this point, we are interested in total number of dyads and number of deaths from conflicts. We are also interested in finding these details by involvement of governments. Specifically, we shall look at number of dyads and deaths in scenarios government-government conflict, government-armed groups conflict and non government conflicts. Columns in the following table are:
+
+|Column|Description|
+|------|-----------|
+|`dyads`| Total number of dyads |
+|`deaths`| Total deaths |
+|`gov1_dyads`|Government vs non-government armed group dyads|
+|`gov1_deaths`|Deaths during government vs non-government armed group dyads|
+|`gov2_dyads`|Number of conflicts between two governments|
+|`gov2_deaths`|Deaths during number of conflicts between two-governments|
+|`other_dyads`|Number of conflicts between two armed groups other than government|
+|`other_deaths`|Deaths during armed group dyads|
+
+
+
+
+
+
+```python
+country_agg = ged.groupby('country').apply(country_agg_func)
+country_agg = country_agg.assign(
+    other_dyads=country_agg.eval('dyads - gov1_dyads - gov2_dyads'),
+    other_deaths=country_agg.eval('deaths - gov1_deaths - gov2_deaths'),
+)
+itables.show(country_agg)
+```
+
+
+{% include 001-conflicts-01/table-02.html %}
+
+
+## Temporal Distribution
+
+Next, we shall examine the temporal distribution of conflict events. We shall use the `region` variable from UCPD to broadly categorize the geographies.
+
+
+```python
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(8, 4))
+gb = ged.groupby(['region', 'year'])
+(gb['id'].count()
+ .reset_index()
+ .pivot(index='year', columns='region')
+ .droplevel(0, axis=1)
+ .plot(ax=ax1))
+ax1.set_title('Number of conflicts over years')
+
+(gb['best'].sum()
+ .reset_index()
+ .pivot(index='year', columns='region')
+ .droplevel(0, axis=1)
+ .plot(ax=ax2))
+ax2.set_title('Number of conflict deaths over years')
+fig.tight_layout()
+plt.show()
+
+```
+
+
+    
+![png](/assets/img/001-conflicts-01/output_12_0.png)
+    
+
+
+These charts reveal horrifying stories of conflicts across Africa, Middle East, and recent Europe. I am guilty of ignorance about the African conflict around 1992-1996. This prompts further discussion.
+
+(To be continued)
