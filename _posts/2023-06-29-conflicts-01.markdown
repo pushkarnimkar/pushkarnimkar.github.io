@@ -2,7 +2,7 @@
 layout: post
 title: Understanding armed-conflicts with data and machine learning - 01
 date: 2023-06-29 00:58:31 -0400
-categories: project,conflict
+categories: conflict
 ---
 
 This project utilizes machine learning techniques to understand lifecycle of armed conflicts. This work is an extension of my [STA561](https://ericlaber.github.io/) project which was inspired by [Prof. Becker](https://sites.duke.edu/charlesbecker/)'s working [paper](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3160015) about [Bosnian War](https://en.wikipedia.org/wiki/Bosnian_War).
