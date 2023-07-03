@@ -5,7 +5,7 @@ date: 2023-06-29 00:58:31 -0400
 categories: conflict
 ---
 
-This project utilizes machine learning techniques to understand lifecycle of armed conflicts. This work is an extension of my [STA561](https://ericlaber.github.io/) project which was inspired by [Prof. Becker](https://sites.duke.edu/charlesbecker/)'s working [paper](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3160015) about [Bosnian War](https://en.wikipedia.org/wiki/Bosnian_War).
+This project utilizes machine learning techniques to understand lifecycle of armed conflicts. This work is an extension of my [STA561](https://ericlaber.github.io/) project which was inspired by [Prof. Becker](https://sites.duke.edu/charlesbecker/)'s working [paper](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3160015) studying the [Bosnian War](https://en.wikipedia.org/wiki/Bosnian_War).
 
 The dataset used in the project is not available in public domain. In this project, I'll start over the analysis using datasets available in public domain. [Uppsala Conflict Data Program (UCDP)](https://ucdp.uu.se/encyclopedia) provides disaggregated (event-level) data on armed conflicts worldwide. In this work, we shall start with [UCDP Georeferenced Event Dataset](https://ucdp.uu.se/downloads/index.html#ged_global) version 23.1 (latest as of June 27th, 2023) and add supplementary datasets as required.
 

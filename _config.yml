@@ -21,19 +21,18 @@
 title: Pushkar Nimkar
 email: pushkarnim (at) gmail (dot) com
 description: >- # this means to ignore newlines until "baseurl:"
-  An accidental economist with a knack for computer engineering. Now on a mission 
-  to mix codes with curves.
+  A computer engineer with a knack for economics. Now on a mission to mix codes with curves.
 
 baseurl: "" # the subpath of your site, e.g. /blog
 url: "https://pushkarnimkar.github.io" # the base hostname & protocol for your site, e.g. http://example.com
 twitter_username: pushkarnim
 github_username:  pushkarnimkar
 linkedin_username: pushkarnim
-
 google_analytics: G-CH946XLWGY
 
 # Build settings
 theme: minima
+show_excerpts: true
 plugins:
   - jekyll-feed
 
