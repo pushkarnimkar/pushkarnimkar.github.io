@@ -1,7 +1,7 @@
 ---
 layout: page
-title: Curriculum Vitae
-permalink: /cv/
+title: Resume
+permalink: /resume/
 ---
 
 ## Summary
