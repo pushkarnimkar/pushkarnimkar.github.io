@@ -1,6 +1,9 @@
-# Hello there 👋
+# Hello There 👋
 
 ## Quick Links
 
-1. [Some Link](/my-link)
-2. [Another Same Link](mylink.md)
+* [GitHub](https://github.com/pushkarnimkar/)
+* [X](https://x.com/pushkarnim)
+* [LinkedIn](https://www.linkedin.com/in/pushkarnim/)
+* [Stack Overflow](https://stackoverflow.com/users/4617501/pushkar-nimkar)
+
