@@ -1388,13 +1388,51 @@ __webpack_require__.r(__webpack_exports__);
 
 const BOARD_SIZE = 10;
 const NUM_MINES = 10;
-const createBoard = () => {
-    const board = Array(BOARD_SIZE).fill(null).map(() => Array(BOARD_SIZE).fill(null).map(() => ({
-        isMine: false,
-        isRevealed: false,
-        isFlagged: false,
-        neighborMines: 0
-    })));
+;
+var GameStatus;
+(function (GameStatus) {
+    GameStatus["Playing"] = "playing";
+    GameStatus["Won"] = "won";
+    GameStatus["Lost"] = "lost";
+})(GameStatus || (GameStatus = {}));
+function CellComponent({ cell, clickHandler, rightClickHandler }) {
+    // const [isClicked, setIsClicked] = useState<boolean>(false);
+    const handleContextMenu = (e) => {
+        e.preventDefault();
+        rightClickHandler(cell.y, cell.x);
+    };
+    // const handleClick = () => {
+    //     if (isClicked) {
+    //         setIsClicked(false);
+    //         doubleClickHandler(cell.y, cell.x);
+    //     } else {
+    //         setIsClicked(true);
+    //         setTimeout(() => {
+    //             setIsClicked(false);
+    //             clickHandler(cell.y, cell.x);
+    //         }, 3000);
+    //     }
+    // }
+    return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { onClick: () => clickHandler(cell.y, cell.x), onContextMenu: (e) => handleContextMenu(e), className: `minesweeper-cell ${cell.isRevealed
+            ? "minesweeper-cell-revealed"
+            : "minesweeper-cell-hidden"}`, children: cell.isRevealed ? (cell.isMine ? "💣" :
+            cell.neighborMines > 0 ? cell.neighborMines : "") : cell.isFlagged ? "🚩" : "" }));
+}
+function createBoard() {
+    const board = [];
+    for (let j = 0; j < BOARD_SIZE; j++) {
+        board[j] = [];
+        for (let i = 0; i < BOARD_SIZE; i++) {
+            board[j][i] = {
+                x: i,
+                y: j,
+                isMine: false,
+                isRevealed: false,
+                isFlagged: false,
+                neighborMines: 0
+            };
+        }
+    }
     // Place mines randomly
     let minesPlaced = 0;
     while (minesPlaced < NUM_MINES) {
@@ -1416,13 +1454,13 @@ const createBoard = () => {
         }
     }
     return board;
-};
-const Minesweeper = () => {
+}
+;
+function Minesweeper() {
     const [board, setBoard] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)(createBoard);
-    const [gameStatus, setGameStatus] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)('playing');
-    const [flagMode, setFlagMode] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)(false);
+    const [gameStatus, setGameStatus] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)(GameStatus.Playing);
     const revealCell = (0,react__WEBPACK_IMPORTED_MODULE_1__.useCallback)((y, x) => {
-        if (gameStatus !== 'playing' || board[y][x].isRevealed || board[y][x].isFlagged) {
+        if (gameStatus !== GameStatus.Playing || board[y][x].isRevealed || board[y][x].isFlagged) {
             return;
         }
         const newBoard = board.map(row => row.map(cell => ({ ...cell })));
@@ -1435,12 +1473,11 @@ const Minesweeper = () => {
                 }
             }
             setBoard(newBoard);
-            setGameStatus('lost');
+            setGameStatus(GameStatus.Lost);
             return;
         }
         const revealEmptyCells = (y, x) => {
-            if (y < 0 || y >= BOARD_SIZE || x < 0 || x >= BOARD_SIZE ||
-                newBoard[y][x].isRevealed || newBoard[y][x].isFlagged) {
+            if (y < 0 || y >= BOARD_SIZE || x < 0 || x >= BOARD_SIZE || newBoard[y][x].isRevealed || newBoard[y][x].isFlagged) {
                 return;
             }
             newBoard[y][x].isRevealed = true;
@@ -1463,11 +1500,11 @@ const Minesweeper = () => {
             }
         }
         if (unrevealedSafeCells === 0) {
-            setGameStatus('won');
+            setGameStatus(GameStatus.Won);
         }
     }, [board, gameStatus]);
     const toggleFlag = (0,react__WEBPACK_IMPORTED_MODULE_1__.useCallback)((y, x) => {
-        if (gameStatus !== 'playing' || board[y][x].isRevealed) {
+        if (gameStatus !== GameStatus.Playing || board[y][x].isRevealed) {
             return;
         }
         const newBoard = board.map(row => row.map(cell => ({ ...cell })));
@@ -1475,25 +1512,18 @@ const Minesweeper = () => {
         setBoard(newBoard);
     }, [board, gameStatus]);
     const handleCellClick = (y, x) => {
-        if (flagMode) {
-            toggleFlag(y, x);
-        }
-        else {
-            revealCell(y, x);
-        }
+        revealCell(y, x);
     };
     const resetGame = () => {
         setBoard(createBoard());
-        setGameStatus('playing');
-        setFlagMode(false);
+        setGameStatus(GameStatus.Playing);
+        // setFlagMode(false);
     };
-    return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "minesweeper-container", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "minesweeper-controls", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { onClick: resetGame, className: "minesweeper-button minesweeper-button-primary", children: "New Game" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { onClick: () => setFlagMode(!flagMode), className: `minesweeper-button ${flagMode ? 'minesweeper-button-active' : 'minesweeper-button-secondary'}`, children: flagMode ? 'Flag Mode (On)' : 'Flag Mode (Off)' }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "minesweeper-status", children: gameStatus === 'won' ? '🎉 You Won!' :
-                            gameStatus === 'lost' ? '💥 Game Over!' :
-                                `Mines: ${NUM_MINES}` })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "minesweeper-board", children: board.map((row, y) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "minesweeper-row", children: row.map((cell, x) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { onClick: () => handleCellClick(y, x), className: `minesweeper-cell ${cell.isRevealed
-                            ? 'minesweeper-cell-revealed'
-                            : 'minesweeper-cell-hidden'}`, children: cell.isRevealed ? (cell.isMine ? '💣' :
-                            cell.neighborMines > 0 ? cell.neighborMines : '') : cell.isFlagged ? '🚩' : '' }, `${y}-${x}`))) }, y))) })] }));
-};
+    return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "minesweeper-container", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "minesweeper-controls", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { onClick: resetGame, className: "minesweeper-button minesweeper-button-primary", children: "New Game" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "minesweeper-status", children: gameStatus === GameStatus.Won ? "🎉 You Won!" :
+                            gameStatus === GameStatus.Lost ? "💥 Game Over!" :
+                                `Mines: ${NUM_MINES}` })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "minesweeper-board", children: board.map((row, y) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "minesweeper-row", children: row.map((cell) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(CellComponent, { cell: cell, clickHandler: handleCellClick, rightClickHandler: toggleFlag }, `${cell.y}-${cell.x}`))) }, y))) })] }));
+}
+;
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (Minesweeper);
 
 
@@ -1625,14 +1655,11 @@ __webpack_require__.r(__webpack_exports__);
 // Auto-initialize when DOM is ready (for Jekyll pages)
 document.addEventListener('DOMContentLoaded', function () {
     const container = document.getElementById('minesweeper-app');
-    if (container && typeof (react__WEBPACK_IMPORTED_MODULE_0___default()) !== 'undefined' && typeof (react_dom__WEBPACK_IMPORTED_MODULE_1___default()) !== 'undefined') {
+    if (container && typeof (react__WEBPACK_IMPORTED_MODULE_0___default()) !== "undefined" &&
+        typeof (react_dom__WEBPACK_IMPORTED_MODULE_1___default()) !== "undefined") {
         react_dom__WEBPACK_IMPORTED_MODULE_1___default().render(react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_components_Minesweeper__WEBPACK_IMPORTED_MODULE_2__["default"]), container);
     }
 });
-// Also expose on window for manual initialization
-if (typeof window !== 'undefined') {
-    window.Minesweeper = _components_Minesweeper__WEBPACK_IMPORTED_MODULE_2__["default"];
-}
 
 })();
 
