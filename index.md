@@ -18,7 +18,6 @@
   .intro-section {
     flex-direction: column;
     align-items: center;
-    text-align: center;
   }
   
   .profile-image {
