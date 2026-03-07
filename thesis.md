@@ -18,6 +18,6 @@ I believe human intelligence is an outcomes millions of years of evolutionary pr
 
 # Paths to prosperity matter
 
-To an individual, nothing could be worse than knowing marginal increase in effort will result in a marginal increase in outcome. 
+To an individual, nothing could be worse than knowing that a marginal increase in effort will not result in a marginal increase in outcome. 
 
 World is full of bad incentive structures and outright coercion. I feel strongly for those who do not have the above as given.
