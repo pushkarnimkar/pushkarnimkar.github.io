@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>International Women's Political Rights Dashboard</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+  :root {
+    --bg: #ffffff;
+    --bg2: #f7f6f3;
+    --bg3: #f0ede8;
+    --text: #1a1a1a;
+    --text2: #555550;
+    --text3: #888780;
+    --border: rgba(0,0,0,0.1);
+    --border2: rgba(0,0,0,0.06);
+    --purple: #7F77DD;
+    --purple-l: #EEEDFE;
+    --teal: #1D9E75;
+    --teal-l: #E1F5EE;
+    --coral: #D85A30;
+    --coral-l: #FAECE7;
+    --amber: #BA7517;
+    --amber-l: #FAEEDA;
+    --pink: #D4537E;
+    --gray: #888780;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1a1a1a;
+      --bg2: #242424;
+      --bg3: #2e2e2e;
+      --text: #f0ede8;
+      --text2: #b0ada8;
+      --text3: #777470;
+      --border: rgba(255,255,255,0.12);
+      --border2: rgba(255,255,255,0.07);
+      --purple: #AFA9EC;
+      --purple-l: #26215C;
+      --teal: #5DCAA5;
+      --teal-l: #04342C;
+      --coral: #F0997B;
+      --coral-l: #4A1B0C;
+      --amber: #EF9F27;
+      --amber-l: #412402;
+      --pink: #ED93B1;
+      --gray: #B4B2A9;
+    }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+
+  header { background: var(--bg2); border-bottom: 1px solid var(--border); padding: 2rem 2.5rem 1.5rem; }
+  header h1 { font-size: 22px; font-weight: 500; margin-bottom: 4px; }
+  header p { font-size: 14px; color: var(--text2); max-width: 680px; }
+  .header-meta { display: flex; gap: 1.5rem; margin-top: 1rem; flex-wrap: wrap; }
+  .header-meta span { font-size: 12px; color: var(--text3); }
+  .header-meta a { color: var(--purple); text-decoration: none; font-size: 12px; }
+  .header-meta a:hover { text-decoration: underline; }
+
+  .kpi-strip { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1px; background: var(--border); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+  .kpi { background: var(--bg); padding: 1.2rem 1.5rem; }
+  .kpi-val { font-size: 28px; font-weight: 500; color: var(--text); line-height: 1; }
+  .kpi-lbl { font-size: 12px; color: var(--text2); margin-top: 5px; line-height: 1.4; }
+  .kpi-src { font-size: 11px; color: var(--text3); margin-top: 3px; }
+
+  main { padding: 2rem 2.5rem; max-width: 1200px; }
+  .section-head { font-size: 11px; font-weight: 500; letter-spacing: .07em; text-transform: uppercase; color: var(--text3); margin: 2.5rem 0 1rem; padding-bottom: .5rem; border-bottom: 1px solid var(--border2); }
+  .section-head:first-child { margin-top: 0; }
+
+  .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(440px, 1fr)); gap: 1.5rem; margin-bottom: 1.5rem; }
+  .grid-1 { margin-bottom: 1.5rem; }
+
+  .card { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 1.25rem 1.5rem; }
+  .card-title { font-size: 14px; font-weight: 500; color: var(--text); margin-bottom: 2px; }
+  .card-sub { font-size: 12px; color: var(--text2); margin-bottom: 14px; }
+  .card-src { font-size: 11px; color: var(--text3); margin-top: 10px; }
+  .card-src a { color: var(--text3); text-decoration: underline; }
+  .card-src a:hover { color: var(--text2); }
+
+  .legend { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 10px; }
+  .leg { display: flex; align-items: center; gap: 5px; font-size: 12px; color: var(--text2); }
+  .leg-dot { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+
+  .note { background: var(--bg2); border-left: 3px solid var(--purple); padding: 10px 14px; font-size: 12px; color: var(--text2); margin-top: 12px; }
+  .note.teal { border-left-color: var(--teal); }
+  .note.coral { border-left-color: var(--coral); }
+  .note.amber { border-left-color: var(--amber); }
+
+  .chart-wrap { position: relative; width: 100%; }
+
+  .sources-section { margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
+  .sources-section h2 { font-size: 13px; font-weight: 500; color: var(--text2); margin-bottom: 1rem; }
+  .sources-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: .75rem; }
+  .source-item { background: var(--bg2); border-radius: 8px; padding: 12px 14px; }
+  .source-item .s-title { font-size: 13px; font-weight: 500; color: var(--text); margin-bottom: 3px; }
+  .source-item .s-desc { font-size: 12px; color: var(--text2); margin-bottom: 6px; }
+  .source-item a { font-size: 12px; color: var(--purple); text-decoration: none; }
+  .source-item a:hover { text-decoration: underline; }
+
+  footer { text-align: center; padding: 2rem; font-size: 12px; color: var(--text3); border-top: 1px solid var(--border2); margin-top: 2rem; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>International Women's Political Rights</h1>
+  <p>A data dashboard tracking progress on women's political representation and leadership globally — for Women's History Month.</p>
+  <div class="header-meta">
+    <span>Data as of 2025</span>
+    <span>&middot;</span>
+    <span>Sources: IPU, UN Women, WEF, Pew Research, MSCI</span>
+    <span>&middot;</span>
+    <a href="#sources">View all sources &darr;</a>
+  </div>
+</header>
+
+<div class="kpi-strip">
+  <div class="kpi">
+    <div class="kpi-val">27.2%</div>
+    <div class="kpi-lbl">Women in national parliaments globally</div>
+    <div class="kpi-src">IPU / UN Women 2025</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-val">22.9%</div>
+    <div class="kpi-lbl">Women in cabinet / ministerial roles</div>
+    <div class="kpi-src">UN Women Jan 2025</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-val">25</div>
+    <div class="kpi-lbl">Countries currently led by a woman</div>
+    <div class="kpi-src">UN Women 2025</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-val">106</div>
+    <div class="kpi-lbl">Countries that have never had a woman leader</div>
+    <div class="kpi-src">UN Women 2025</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-val">2063</div>
+    <div class="kpi-lbl">Projected year of parliamentary gender parity</div>
+    <div class="kpi-src">UN Women (at current pace)</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-val">23.4%</div>
+    <div class="kpi-lbl">Political empowerment gap closed (WEF index)</div>
+    <div class="kpi-src">WEF Global Gender Gap 2025</div>
+  </div>
+</div>
+
+<main>
+
+  <div class="section-head">Women in parliament — 30-year trend</div>
+  <div class="grid-1">
+    <div class="card">
+      <div class="card-title">Global share of parliamentary seats held by women, 1995–2025</div>
+      <div class="card-sub">% of seats in lower or single chambers &middot; IPU annual data</div>
+      <div class="legend">
+        <span class="leg"><span class="leg-dot" style="background:#7F77DD"></span>Global average</span>
+        <span class="leg"><span class="leg-dot" style="background:#AFA9EC;opacity:.6"></span>Parity target (50%)</span>
+      </div>
+      <div class="chart-wrap" style="height:240px"><canvas id="c-parliament"></canvas></div>
+      <div class="note">Progress nearly doubled over 30 years — from 11.3% in 1995 to 27.2% in 2025. But the slope has flattened sharply since 2017, and 2024 recorded the slowest single-year gain since then.</div>
+      <div class="card-src">Source: <a href="https://www.ipu.org/resources/publications/reports/2025-03/women-in-parliament-1995-2025" target="_blank">IPU, Women in Parliament 1995–2025</a></div>
+    </div>
+  </div>
+
+  <div class="section-head">Countries with women leaders — cumulative total</div>
+  <div class="grid-1">
+    <div class="card">
+      <div class="card-title">Cumulative number of countries ever led by a woman head of state or government, 1960–2025</div>
+      <div class="card-sub">Includes first democratically elected or appointed female heads of state/government &middot; IPU / UN Women / Pew Research</div>
+      <div class="legend">
+        <span class="leg"><span class="leg-dot" style="background:#BA7517"></span>Cumulative countries</span>
+      </div>
+      <div class="chart-wrap" style="height:220px"><canvas id="c-leaders"></canvas></div>
+      <div class="note amber">The 1990s and 2000s saw the steepest acceleration. 2010 was the single biggest year — 5 countries elected their first female leader. Today 87 countries have been led by a woman at some point; 106 never have.</div>
+      <div class="card-src">Source: <a href="https://www.pewresearch.org/short-reads/2024/10/03/women-leaders-around-the-world/" target="_blank">Pew Research Center 2024</a> &middot; <a href="https://www.unwomen.org/en/news-stories/press-release/2025/03/political-leadership-roles-in-2025-men-continue-to-dominate" target="_blank">UN Women 2025</a></div>
+    </div>
+  </div>
+
+  <div class="section-head">Regional breakdown (2025)</div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">Women in parliament by world region</div>
+      <div class="card-sub">% of parliamentary seats held by women &middot; IPU / UN Women Jan 2025</div>
+      <div class="legend">
+        <span class="leg"><span class="leg-dot" style="background:#1D9E75"></span>% women in parliament</span>
+      </div>
+      <div class="chart-wrap" style="height:300px"><canvas id="c-regions"></canvas></div>
+      <div class="note teal">Latin America leads all regions at 37%, driven by strong quota laws. Central & Southern Asia remains the lowest at 17%.</div>
+      <div class="card-src">Source: <a href="https://www.unwomen.org/en/articles/facts-and-figures/facts-and-figures-womens-leadership-and-political-participation" target="_blank">UN Women, Facts & Figures 2025</a></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Countries at or above 50% women in parliament</div>
+      <div class="card-sub">Lower or single chamber &middot; as of Jan 2025 &middot; IPU</div>
+      <div class="legend">
+        <span class="leg"><span class="leg-dot" style="background:#7F77DD"></span>% women in chamber</span>
+        <span class="leg"><span class="leg-dot" style="background:#AFA9EC;opacity:.5"></span>Parity (50%)</span>
+      </div>
+      <div class="chart-wrap" style="height:300px"><canvas id="c-parity-countries"></canvas></div>
+      <div class="note">Rwanda leads the world at 64%, with a legal gender quota requiring 30% minimum since 2003. In 1995, no parliament had parity. Today six do.</div>
+      <div class="card-src">Source: <a href="https://data.ipu.org/women-ranking/" target="_blank">IPU Parline global data 2025</a></div>
+    </div>
+  </div>
+
+  <div class="section-head">WEF Global Gender Gap Index — political empowerment over time</div>
+  <div class="grid-1">
+    <div class="card">
+      <div class="card-title">Political empowerment gap closed (%), 2006–2025</div>
+      <div class="card-sub">From WEF Global Gender Gap Index &middot; 100 constant economies &middot; score = % of political gender gap closed</div>
+      <div class="legend">
+        <span class="leg"><span class="leg-dot" style="background:#D85A30"></span>Political empowerment</span>
+        <span class="leg"><span class="leg-dot" style="background:#7F77DD"></span>Overall index</span>
+        <span class="leg"><span class="leg-dot" style="background:#D4537E"></span>Educational attainment</span>
+        <span class="leg"><span class="leg-dot" style="background:#1D9E75"></span>Economic participation</span>
+      </div>
+      <div class="chart-wrap" style="height:260px"><canvas id="c-gggr"></canvas></div>
+      <div class="note coral">Political empowerment has seen the most absolute gains since 2006 (+9pp) but remains by far the most unequal dimension — only 23.4% closed. At current pace, 162 more years are needed to close the political gap alone.</div>
+      <div class="card-src">Source: <a href="https://www.weforum.org/publications/global-gender-gap-report-2025/" target="_blank">WEF Global Gender Gap Report 2025</a></div>
+    </div>
+  </div>
+
+  <div class="section-head">Corporate leadership (2025)</div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">Women in corporate leadership roles</div>
+      <div class="card-sub">% representation at key levels &middot; global large- and mid-cap companies &middot; MSCI Oct 2025</div>
+      <div class="legend">
+        <span class="leg"><span class="leg-dot" style="background:#7F77DD"></span>% women</span>
+        <span class="leg"><span class="leg-dot" style="background:#AFA9EC;opacity:.5"></span>Parity (50%)</span>
+      </div>
+      <div class="chart-wrap" style="height:240px"><canvas id="c-boards"></canvas></div>
+      <div class="note">Board seats have grown to 28.3%, but CEO and CFO representation remains in single digits. Growth in senior leadership is "stagnating" per MSCI 2025.</div>
+      <div class="card-src">Source: <a href="https://www.msci.com/research-and-insights/paper/women-on-boards-and-beyond-2025-report" target="_blank">MSCI, Women on Boards and Beyond 2025</a></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Women in parliament vs. corporate boards — global comparison</div>
+      <div class="card-sub">% women &middot; 1995 baseline vs. 2025 &middot; IPU / MSCI / WEF</div>
+      <div class="legend">
+        <span class="leg"><span class="leg-dot" style="background:#888780"></span>1995 / baseline</span>
+        <span class="leg"><span class="leg-dot" style="background:#7F77DD"></span>2025</span>
+      </div>
+      <div class="chart-wrap" style="height:240px"><canvas id="c-progress-compare"></canvas></div>
+      <div class="note">Across every arena of leadership, representation has grown — but none has crossed 40%. Parliament has moved the most in absolute terms over 30 years.</div>
+      <div class="card-src">Source: IPU 2025 &middot; MSCI 2025 &middot; UN Women 2025 &middot; WEF 2025</div>
+    </div>
+  </div>
+
+  <div class="section-head">Key milestones & firsts</div>
+  <div class="grid-1">
+    <div class="card">
+      <div class="card-title">Historic firsts in women's political leadership</div>
+      <div class="card-sub">Selected landmark moments, 1960–2025</div>
+      <div style="overflow-x:auto;">
+        <table style="width:100%;border-collapse:collapse;font-size:13px;">
+          <thead>
+            <tr style="border-bottom:1px solid var(--border);">
+              <th style="text-align:left;padding:8px 10px;color:var(--text2);font-weight:500;">Year</th>
+              <th style="text-align:left;padding:8px 10px;color:var(--text2);font-weight:500;">Leader</th>
+              <th style="text-align:left;padding:8px 10px;color:var(--text2);font-weight:500;">Country</th>
+              <th style="text-align:left;padding:8px 10px;color:var(--text2);font-weight:500;">First</th>
+            </tr>
+          </thead>
+          <tbody id="milestones-body"></tbody>
+        </table>
+      </div>
+      <div class="card-src">Source: <a href="https://www.history.com/articles/women-leaders-elected" target="_blank">History.com</a> &middot; <a href="https://en.wikipedia.org/wiki/List_of_elected_and_appointed_female_state_leaders" target="_blank">Wikipedia: Female State Leaders</a> &middot; <a href="https://www.pewresearch.org/short-reads/2024/10/03/women-leaders-around-the-world/" target="_blank">Pew Research 2024</a></div>
+    </div>
+  </div>
+
+  <div class="sources-section" id="sources">
+    <h2>Data sources</h2>
+    <div class="sources-grid" id="sources-grid"></div>
+  </div>
+
+</main>
+
+<footer>
+  International Women's Political Rights Dashboard &middot; Women's History Month &middot; Data current as of early 2025
+</footer>
+
+<script>
+const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+const GRID = isDark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.06)';
+const TICK = isDark ? '#999' : '#666';
+
+const COLORS = {
+  purple: '#7F77DD', purpleL: 'rgba(127,119,221,0.12)',
+  teal: '#1D9E75', tealL: 'rgba(29,158,117,0.1)',
+  coral: '#D85A30',
+  amber: '#BA7517', amberB: '#EF9F27',
+  pink: '#D4537E',
+  gray: '#888780', grayL: 'rgba(136,135,128,0.15)',
+  purpleMid: '#AFA9EC'
+};
+
+function axes(yMin, yMax, yCb) {
+  return {
+    x: { grid: { color: GRID }, ticks: { color: TICK, font: { size: 11 } } },
+    y: { grid: { color: GRID }, ticks: { color: TICK, font: { size: 11 }, callback: yCb || (v => v + '%') }, min: yMin, max: yMax }
+  };
+}
+function baseOpts(yMin, yMax, yCb, ttCb) {
+  return {
+    responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: { callbacks: { label: ttCb || (c => ' ' + (typeof c.parsed.y !== 'undefined' ? c.parsed.y : c.parsed.x) + '%') } }
+    },
+    scales: axes(yMin, yMax, yCb)
+  };
+}
+
+/* 1. Parliament trend */
+new Chart('c-parliament', {
+  type: 'line',
+  data: {
+    labels: ['1995','1997','1999','2001','2003','2005','2007','2009','2011','2013','2015','2017','2019','2021','2023','2025'],
+    datasets: [
+      { data: [11.3,11.7,12.9,13.8,15.2,16.1,17.7,18.8,19.5,21.3,22.3,23.4,24.3,25.5,26.9,27.2],
+        borderColor: COLORS.purple, backgroundColor: COLORS.purpleL, borderWidth: 2.5,
+        pointRadius: 3, pointBackgroundColor: COLORS.purple, tension: 0.3, fill: true },
+      { data: Array(16).fill(50), borderColor: COLORS.purpleMid, borderWidth: 1,
+        borderDash: [5,5], pointRadius: 0, tension: 0 }
+    ]
+  },
+  options: {
+    ...baseOpts(0, 55, v => v + '%', c => c.datasetIndex === 0 ? ' ' + c.parsed.y.toFixed(1) + '%' : ' Parity target: 50%'),
+    scales: { ...axes(0, 55), x: { grid: { color: GRID }, ticks: { color: TICK, font: { size: 11 }, maxRotation: 0 } } }
+  }
+});
+
+/* 2. Leaders cumulative */
+new Chart('c-leaders', {
+  type: 'bar',
+  data: {
+    labels: ['1960','1965','1970','1975','1980','1985','1990','1995','2000','2005','2010','2015','2020','2025'],
+    datasets: [{ data: [1,1,2,3,5,7,10,18,28,40,55,72,80,87], backgroundColor: COLORS.amberB, borderRadius: 4 }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => ' ' + c.parsed.y + ' countries' } } },
+    scales: {
+      x: { grid: { color: GRID }, ticks: { color: TICK, font: { size: 11 } } },
+      y: { grid: { color: GRID }, ticks: { color: TICK, font: { size: 11 }, callback: v => v }, min: 0, max: 100 }
+    }
+  }
+});
+
+/* 3. Regions */
+new Chart('c-regions', {
+  type: 'bar',
+  data: {
+    labels: ['Latin Am. & Caribbean','Europe & N. America','Sub-Saharan Africa','E. & SE Asia','Oceania','N. Africa & W. Asia','C. & S. Asia'],
+    datasets: [{ data: [37,33,27,23.5,20,18.5,17], backgroundColor: COLORS.teal, borderRadius: 4 }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    indexAxis: 'y',
+    plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => ' ' + c.parsed.x + '%' } } },
+    scales: {
+      y: { grid: { color: GRID }, ticks: { color: TICK, font: { size: 12 } } },
+      x: { grid: { color: GRID }, ticks: { color: TICK, font: { size: 11 }, callback: v => v + '%' }, min: 0, max: 50 }
+    }
+  }
+});
+
+/* 4. Parity countries */
+new Chart('c-parity-countries', {
+  type: 'bar',
+  data: {
+    labels: ['Rwanda','Cuba','Nicaragua','Bolivia','Mexico','UAE','Andorra'],
+    datasets: [
+      { data: [63.8,57,55,51,50,50,50], backgroundColor: COLORS.purple, borderRadius: 4, label: '% women' },
+      { data: Array(7).fill(50), type: 'line', borderColor: COLORS.purpleMid, borderDash: [5,5], borderWidth: 1.5, pointRadius: 0, fill: false, label: 'Parity' }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => c.type === 'line' ? ' Parity: 50%' : ' ' + c.parsed.y + '%' } } },
+    scales: {
+      x: { grid: { color: GRID }, ticks: { color: TICK, font: { size: 12 } } },
+      y: { grid: { color: GRID }, ticks: { color: TICK, font: { size: 11 }, callback: v => v + '%' }, min: 40, max: 70 }
+    }
+  }
+});
+
+/* 5. GGGR multi-line */
+new Chart('c-gggr', {
+  type: 'line',
+  data: {
+    labels: ['2006','2008','2010','2012','2014','2016','2018','2020','2022','2024','2025'],
+    datasets: [
+      { label: 'Political', data: [14.3,15.2,16.1,17.8,19.2,20.8,20.5,22.6,22.0,22.6,23.4],
+        borderColor: COLORS.coral, borderWidth: 2, pointRadius: 3, tension: 0.3 },
+      { label: 'Overall', data: [64.1,65.5,66.4,67.6,68.3,68.0,68.1,68.7,68.1,68.6,69.0],
+        borderColor: COLORS.purple, borderWidth: 2.5, borderDash: [6,3], pointRadius: 3, tension: 0.3 },
+      { label: 'Education', data: [94.0,95.1,95.8,96.2,96.5,97.0,96.9,96.2,94.4,96.1,96.1],
+        borderColor: COLORS.pink, borderWidth: 2, pointRadius: 2, tension: 0.3 },
+      { label: 'Economic', data: [55.1,57.0,58.1,60.3,60.0,58.9,58.5,57.0,60.3,60.0,60.7],
+        borderColor: COLORS.teal, borderWidth: 2, pointRadius: 2, tension: 0.3 }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => ' ' + c.dataset.label + ': ' + c.parsed.y.toFixed(1) + '%' } } },
+    scales: {
+      x: { grid: { color: GRID }, ticks: { color: TICK, font: { size: 11 }, maxRotation: 0 } },
+      y: { grid: { color: GRID }, ticks: { color: TICK, font: { size: 11 }, callback: v => v + '%' }, min: 10, max: 100 }
+    }
+  }
+});
+
+/* 6. Corporate boards */
+new Chart('c-boards', {
+  type: 'bar',
+  data: {
+    labels: ['Board seats', 'Committee seats', 'Board chairs', 'CFO roles', 'CEO roles'],
+    datasets: [
+      { data: [28.3, 32.1, 9.8, 14.2, 6.4], backgroundColor: COLORS.purple, borderRadius: 4, label: '% women (2025)' },
+      { data: Array(5).fill(50), type: 'line', borderColor: COLORS.purpleMid, borderDash: [5,5], borderWidth: 1.5, pointRadius: 0, fill: false }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => c.type === 'line' ? ' Parity: 50%' : ' ' + c.parsed.y + '%' } } },
+    scales: {
+      x: { grid: { color: GRID }, ticks: { color: TICK, font: { size: 12 } } },
+      y: { grid: { color: GRID }, ticks: { color: TICK, font: { size: 11 }, callback: v => v + '%' }, min: 0, max: 55 }
+    }
+  }
+});
+
+/* 7. Progress compare */
+new Chart('c-progress-compare', {
+  type: 'bar',
+  data: {
+    labels: ['Parliament', 'Cabinet roles', 'Corporate boards', 'C-suite / senior mgmt', 'Women-led countries'],
+    datasets: [
+      { label: 'Baseline (1995–early 2000s)', data: [11.3, 10.5, 9.0, 8.0, 5.2], backgroundColor: COLORS.gray, borderRadius: 4 },
+      { label: '2025', data: [27.2, 22.9, 28.3, 29.0, 13.0], backgroundColor: COLORS.purple, borderRadius: 4 }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => ' ' + c.dataset.label + ': ' + c.parsed.y + '%' } } },
+    scales: {
+      x: { grid: { color: GRID }, ticks: { color: TICK, font: { size: 11 } } },
+      y: { grid: { color: GRID }, ticks: { color: TICK, font: { size: 11 }, callback: v => v + '%' }, min: 0, max: 40 }
+    }
+  }
+});
+
+/* Milestones table */
+const milestones = [
+  ['1960', 'Sirimavo Bandaranaike', 'Sri Lanka', 'World\'s first female Prime Minister'],
+  ['1966', 'Indira Gandhi', 'India', 'First female PM of India'],
+  ['1969', 'Golda Meir', 'Israel', 'First female PM of Israel'],
+  ['1974', 'Isabel Perón', 'Argentina', 'First woman to hold the title of President'],
+  ['1979', 'Margaret Thatcher', 'UK', 'First female British PM; longest-serving 20th-c. PM'],
+  ['1980', 'Vigdís Finnbogadóttir', 'Iceland', 'First democratically elected female president globally'],
+  ['1986', 'Corazon Aquino', 'Philippines', 'First female president in Asia'],
+  ['1988', 'Benazir Bhutto', 'Pakistan', 'First female PM of a Muslim-majority country'],
+  ['2005', 'Angela Merkel', 'Germany', 'First female Chancellor of Germany (served until 2021)'],
+  ['2005', 'Ellen Johnson Sirleaf', 'Liberia', 'First female president in Africa; Nobel Peace Prize 2011'],
+  ['2017', 'Jacinda Ardern', 'New Zealand', 'Gave birth while serving; youngest female head of govt at the time'],
+  ['2024', 'Claudia Sheinbaum', 'Mexico', 'First female President of Mexico'],
+  ['2025', 'Netumbo Nandi-Ndaitwah', 'Namibia', 'First female President of Namibia'],
+  ['2025', 'Sanae Takaichi', 'Japan', 'First female Prime Minister of Japan'],
+];
+const tbody = document.getElementById('milestones-body');
+milestones.forEach((r, i) => {
+  const tr = document.createElement('tr');
+  tr.style.cssText = `border-bottom:1px solid var(--border2);background:${i%2===0?'transparent':'var(--bg2)'}`;
+  tr.innerHTML = r.map((c,j) => `<td style="padding:8px 10px;color:${j===3?'var(--text2)':'var(--text)'};font-size:${j===3?'12':'13'}px">${c}</td>`).join('');
+  tbody.appendChild(tr);
+});
+
+/* Sources */
+const sources = [
+  { title: 'IPU — Women in Parliament 1995–2025', desc: 'Comprehensive 30-year analysis of women\'s parliamentary representation globally.', url: 'https://www.ipu.org/resources/publications/reports/2025-03/women-in-parliament-1995-2025' },
+  { title: 'IPU Parline — Live Rankings', desc: 'Monthly rankings of women in national parliaments; downloadable CSV/XLS.', url: 'https://data.ipu.org/women-ranking/' },
+  { title: 'UN Women — Women in Politics 2025 Map', desc: 'Annual map of women\'s political representation across executive and legislative roles.', url: 'https://www.unwomen.org/en/digital-library/publications/2025/03/women-in-politics-map-2025' },
+  { title: 'UN Women — Facts & Figures: Political Participation', desc: 'Regional breakdowns of women in parliament, cabinet, and local government.', url: 'https://www.unwomen.org/en/articles/facts-and-figures/facts-and-figures-womens-leadership-and-political-participation' },
+  { title: 'WEF Global Gender Gap Report 2025', desc: 'Annual benchmarking of gender parity across 148 economies including Political Empowerment subindex.', url: 'https://www.weforum.org/publications/global-gender-gap-report-2025/' },
+  { title: 'Pew Research — Women Leaders Around the World', desc: 'Analysis of countries that have had female heads of state or government.', url: 'https://www.pewresearch.org/short-reads/2024/10/03/women-leaders-around-the-world/' },
+  { title: 'MSCI — Women on Boards and Beyond 2025', desc: 'Annual report on women\'s representation on corporate boards, leadership, and committees.', url: 'https://www.msci.com/research-and-insights/paper/women-on-boards-and-beyond-2025-report' },
+  { title: 'IPU — Historical Women in Parliament Data', desc: 'Downloadable dataset on % women in parliament 1945–2018; monthly rankings from 2019.', url: 'https://data.ipu.org/historical-women/' },
+];
+const sg = document.getElementById('sources-grid');
+sources.forEach(s => {
+  const d = document.createElement('div');
+  d.className = 'source-item';
+  d.innerHTML = `<div class="s-title">${s.title}</div><div class="s-desc">${s.desc}</div><a href="${s.url}" target="_blank">Open source &rarr;</a>`;
+  sg.appendChild(d);
+});
+</script>
+</body>
+</html>

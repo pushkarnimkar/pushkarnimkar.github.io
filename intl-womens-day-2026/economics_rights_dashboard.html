@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>International Women's Labor Rights Dashboard</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+  :root {
+    --bg: #ffffff; --bg2: #f7f6f3; --bg3: #f0ede8;
+    --text: #1a1a1a; --text2: #555550; --text3: #888780;
+    --border: rgba(0,0,0,0.1); --border2: rgba(0,0,0,0.06);
+    --teal: #1D9E75; --teal-l: rgba(29,158,117,0.1);
+    --pink: #D4537E; --pink-l: rgba(212,83,126,0.1);
+    --coral: #D85A30; --coral-l: rgba(216,90,48,0.1);
+    --purple: #7F77DD; --purple-l: rgba(127,119,221,0.1);
+    --amber: #BA7517; --amber-b: #EF9F27;
+    --gray: #888780; --gray-l: rgba(136,135,128,0.15);
+    --purple-mid: #AFA9EC;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1a1a1a; --bg2: #242424; --bg3: #2e2e2e;
+      --text: #f0ede8; --text2: #b0ada8; --text3: #777470;
+      --border: rgba(255,255,255,0.12); --border2: rgba(255,255,255,0.07);
+      --teal: #5DCAA5; --teal-l: rgba(93,202,165,0.12);
+      --pink: #ED93B1; --pink-l: rgba(237,147,177,0.1);
+      --coral: #F0997B; --coral-l: rgba(240,153,123,0.1);
+      --purple: #AFA9EC; --purple-l: rgba(175,169,236,0.1);
+      --amber: #EF9F27; --amber-b: #EF9F27;
+      --gray: #B4B2A9; --gray-l: rgba(180,178,169,0.12);
+      --purple-mid: #7F77DD;
+    }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+
+  header { background: var(--bg2); border-bottom: 1px solid var(--border); padding: 2rem 2.5rem 1.5rem; }
+  header h1 { font-size: 22px; font-weight: 500; margin-bottom: 4px; }
+  header p { font-size: 14px; color: var(--text2); max-width: 720px; }
+  .header-meta { display: flex; gap: 1.5rem; margin-top: 1rem; flex-wrap: wrap; align-items: center; }
+  .header-meta span { font-size: 12px; color: var(--text3); }
+  .header-meta a { color: var(--teal); text-decoration: none; font-size: 12px; }
+  .header-meta a:hover { text-decoration: underline; }
+
+  .kpi-strip { display: grid; grid-template-columns: repeat(auto-fit, minmax(155px, 1fr)); gap: 1px; background: var(--border); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+  .kpi { background: var(--bg); padding: 1.2rem 1.5rem; }
+  .kpi-val { font-size: 26px; font-weight: 500; color: var(--text); line-height: 1; }
+  .kpi-lbl { font-size: 12px; color: var(--text2); margin-top: 5px; line-height: 1.4; }
+  .kpi-src { font-size: 11px; color: var(--text3); margin-top: 3px; }
+
+  main { padding: 2rem 2.5rem; max-width: 1200px; }
+  .section-head { font-size: 11px; font-weight: 500; letter-spacing: .07em; text-transform: uppercase; color: var(--text3); margin: 2.5rem 0 1rem; padding-bottom: .5rem; border-bottom: 1px solid var(--border2); }
+  .section-head:first-child { margin-top: 0; }
+
+  .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(440px, 1fr)); gap: 1.5rem; margin-bottom: 1.5rem; }
+  .grid-1 { margin-bottom: 1.5rem; }
+
+  .card { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 1.25rem 1.5rem; }
+  .card-title { font-size: 14px; font-weight: 500; color: var(--text); margin-bottom: 2px; }
+  .card-sub { font-size: 12px; color: var(--text2); margin-bottom: 14px; }
+  .card-src { font-size: 11px; color: var(--text3); margin-top: 10px; }
+  .card-src a { color: var(--text3); text-decoration: underline; }
+  .card-src a:hover { color: var(--text2); }
+
+  .legend { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 10px; }
+  .leg { display: flex; align-items: center; gap: 5px; font-size: 12px; color: var(--text2); }
+  .leg-dot { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+
+  .note { background: var(--bg2); border-left: 3px solid var(--teal); padding: 10px 14px; font-size: 12px; color: var(--text2); margin-top: 12px; }
+  .note.coral { border-left-color: var(--coral); }
+  .note.pink { border-left-color: var(--pink); }
+  .note.amber { border-left-color: var(--amber-b); }
+  .note.purple { border-left-color: var(--purple); }
+
+  .chart-wrap { position: relative; width: 100%; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { text-align: left; padding: 8px 10px; color: var(--text2); font-weight: 500; border-bottom: 1px solid var(--border); }
+  td { padding: 8px 10px; border-bottom: 1px solid var(--border2); }
+
+  .sources-section { margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
+  .sources-section h2 { font-size: 13px; font-weight: 500; color: var(--text2); margin-bottom: 1rem; }
+  .sources-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: .75rem; }
+  .source-item { background: var(--bg2); border-radius: 8px; padding: 12px 14px; }
+  .source-item .s-title { font-size: 13px; font-weight: 500; color: var(--text); margin-bottom: 3px; }
+  .source-item .s-desc { font-size: 12px; color: var(--text2); margin-bottom: 6px; }
+  .source-item a { font-size: 12px; color: var(--teal); text-decoration: none; }
+  .source-item a:hover { text-decoration: underline; }
+
+  footer { text-align: center; padding: 2rem; font-size: 12px; color: var(--text3); border-top: 1px solid var(--border2); margin-top: 2rem; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>International Women's Labor Rights</h1>
+  <p>A data dashboard tracking the gender wage gap, labor force participation, unpaid care work, workplace confidence, and progress over time — for Women's History Month.</p>
+  <div class="header-meta">
+    <span>Data as of 2024–2025</span>
+    <span>&middot;</span>
+    <span>Sources: ILO, UN Women, WEF, OECD, Pew Research, McKinsey/LeanIn, UC Berkeley</span>
+    <span>&middot;</span>
+    <a href="#sources">View all sources &darr;</a>
+  </div>
+</header>
+
+<div class="kpi-strip">
+  <div class="kpi">
+    <div class="kpi-val">$0.77</div>
+    <div class="kpi-lbl">Women earn per $1 earned by men globally</div>
+    <div class="kpi-src">UN / World Bank 2024</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-val">$0.83</div>
+    <div class="kpi-lbl">US women's earnings per $1 (full-time, 2024)</div>
+    <div class="kpi-src">US BLS / Pew Research 2025</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-val">708M</div>
+    <div class="kpi-lbl">Women outside labor force due to unpaid care</div>
+    <div class="kpi-src">ILO 2024</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-val">76.2%</div>
+    <div class="kpi-lbl">Of all unpaid care work done by women</div>
+    <div class="kpi-src">ILO / UNDP</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-val">$11T</div>
+    <div class="kpi-lbl">Value of women's unpaid care if compensated</div>
+    <div class="kpi-src">ILO (9% of global GDP)</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-val">123 yrs</div>
+    <div class="kpi-lbl">To full global gender parity at current pace</div>
+    <div class="kpi-src">WEF Global Gender Gap 2025</div>
+  </div>
+</div>
+
+<main>
+
+  <!-- WAGE GAP -->
+  <div class="section-head">Gender wage gap</div>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">US gender wage gap, 1960–2024</div>
+      <div class="card-sub">Women's median earnings as % of men's, full-time workers · US Census / BLS / Pew Research</div>
+      <div class="legend">
+        <span class="leg"><span class="leg-dot" style="background:#1D9E75"></span>Women's earnings as % of men's</span>
+        <span class="leg"><span class="leg-dot" style="background:#9FE1CB;opacity:.7"></span>Equal pay (100%)</span>
+      </div>
+      <div class="chart-wrap" style="height:240px"><canvas id="c-uswage"></canvas></div>
+      <div class="note">The steepest gains came between 1980 and 2000. Progress has nearly stalled since — moving just ~8¢ over the last two decades.</div>
+      <div class="card-src">Source: <a href="https://www.pewresearch.org/short-reads/2025/03/04/gender-pay-gap-in-us-has-narrowed-slightly-over-2-decades/" target="_blank">Pew Research Center 2025</a> &middot; <a href="https://www.equalpaytoday.org/gender-pay-gap-statistics/" target="_blank">Equal Pay Today 2026</a></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Women's earnings as % of men's by country/region</div>
+      <div class="card-sub">Median female wage as % of median male wage · OECD / EC / World Bank · 2023–2024</div>
+      <div class="legend">
+        <span class="leg"><span class="leg-dot" style="background:#1D9E75"></span>Women's earnings (¢ per $1)</span>
+      </div>
+      <div class="chart-wrap" style="height:240px"><canvas id="c-intwage"></canvas></div>
+      <div class="note">Luxembourg is the only country where women earn more than men on average. Germany, Austria, and Estonia have gaps exceeding 17%.</div>
+      <div class="card-src">Source: <a href="https://www.oecd.org/en/data/indicators/gender-wage-gap.html" target="_blank">OECD Gender Wage Gap</a> &middot; <a href="https://www.qureos.com/hiring-guide/gender-pay-gap-by-industry-and-region" target="_blank">Qureos 2026</a></div>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">OECD average gender wage gap, 1995–2023</div>
+      <div class="card-sub">Difference between median male and female wages as % of median male wage · OECD full-time employees</div>
+      <div class="legend">
+        <span class="leg"><span class="leg-dot" style="background:#1D9E75"></span>OECD average wage gap (%)</span>
+      </div>
+      <div class="chart-wrap" style="height:220px"><canvas id="c-oecdtrend"></canvas></div>
+      <div class="note teal">The OECD average gap narrowed from 19% in 1995 to 11% in 2023 — an 8 percentage point improvement over 28 years. Progress is real but slow.</div>
+      <div class="card-src">Source: <a href="https://www.oecd.org/en/publications/gender-gaps-in-paid-and-unpaid-work-persist_25a6c5dc-en/full-report.html" target="_blank">OECD, Gender Gaps in Paid and Unpaid Work 2025</a></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Wage gap contributing factors</div>
+      <div class="card-sub">Estimated % contribution to the overall gender pay gap · academic and policy research</div>
+      <div class="legend">
+        <span class="leg"><span class="leg-dot" style="background:#D4537E"></span>% contribution</span>
+      </div>
+      <div class="chart-wrap" style="height:220px"><canvas id="c-wagefactors"></canvas></div>
+      <div class="note pink">60% of Europe's gender pay gap is linked to motherhood alone (UN Women). Women who self-advocate face documented workplace backlash, making negotiation a rational risk rather than a simple choice.</div>
+      <div class="card-src">Source: <a href="https://www.un.org/en/observances/equal-pay-day" target="_blank">UN Equal Pay Day</a> &middot; <a href="https://www.unwomen.org/en/articles/faqs/faqs-what-is-unpaid-care-work-and-how-does-it-power-the-economy" target="_blank">UN Women 2025</a></div>
+    </div>
+  </div>
+
+  <!-- LABOR FORCE PARTICIPATION -->
+  <div class="section-head">Labor force participation</div>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">Women vs. men labor force participation, global, 1990–2024</div>
+      <div class="card-sub">% of working-age population in the labor force · ILO modelled estimates / WEF</div>
+      <div class="legend">
+        <span class="leg"><span class="leg-dot" style="background:#D4537E"></span>Women</span>
+        <span class="leg"><span class="leg-dot" style="background:#888780"></span>Men</span>
+      </div>
+      <div class="chart-wrap" style="height:240px"><canvas id="c-lfp"></canvas></div>
+      <div class="note pink">Women's participation has barely moved in 30 years — stuck below 50% while men's hovers near 74%. The 2020 dip reflects COVID-19's disproportionate impact on women's employment.</div>
+      <div class="card-src">Source: <a href="https://ilostat.ilo.org/data/" target="_blank">ILO ILOSTAT</a> &middot; <a href="https://www.weforum.org/publications/global-gender-gap-report-2025/" target="_blank">WEF Global Gender Gap Report 2025</a></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Women's labor force participation by region</div>
+      <div class="card-sub">% of working-age women in the labor force · ILO / WEF 2024</div>
+      <div class="legend">
+        <span class="leg"><span class="leg-dot" style="background:#D4537E"></span>Women's LFP rate</span>
+      </div>
+      <div class="chart-wrap" style="height:240px"><canvas id="c-lfpregion"></canvas></div>
+      <div class="note pink">MENA has the world's lowest female labor force participation at ~19%, driven by legal, cultural, and structural barriers. Nordic countries exceed 75%.</div>
+      <div class="card-src">Source: <a href="https://www.qureos.com/hiring-guide/gender-pay-gap-by-industry-and-region" target="_blank">Qureos 2026</a> &middot; <a href="https://www.oecd.org/content/dam/oecd/en/publications/reports/2025/12/women-work-and-the-population-puzzle_3711a72f/5e2e6aae-en.pdf" target="_blank">OECD 2025</a></div>
+    </div>
+  </div>
+
+  <!-- UNPAID CARE -->
+  <div class="section-head">Unpaid care work</div>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">Women kept out of labor force by unpaid care responsibilities</div>
+      <div class="card-sub">Millions of people outside labor force citing care as primary reason · ILO 2024 · 125-country dataset</div>
+      <div class="legend">
+        <span class="leg"><span class="leg-dot" style="background:#D4537E"></span>Women (708M)</span>
+        <span class="leg"><span class="leg-dot" style="background:#888780"></span>Men (40M)</span>
+      </div>
+      <div class="chart-wrap" style="height:180px"><canvas id="c-care708"></canvas></div>
+      <div class="note coral">Women are kept out of the labor force by care responsibilities at a rate 18× higher than men. 45% of working-age women cite care as their reason for not working vs. just 5% of men.</div>
+      <div class="card-src">Source: <a href="https://www.ilo.org/resource/news/unpaid-care-work-prevents-708-million-women-participating-labour-market" target="_blank">ILO, October 2024</a></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Daily hours spent on unpaid care work</div>
+      <div class="card-sub">Global average hours per day · UNDP / ILO</div>
+      <div class="legend">
+        <span class="leg"><span class="leg-dot" style="background:#D4537E"></span>Women (4h 25m)</span>
+        <span class="leg"><span class="leg-dot" style="background:#888780"></span>Men (1h 23m)</span>
+      </div>
+      <div class="chart-wrap" style="height:180px"><canvas id="c-carehours"></canvas></div>
+      <div class="note coral">Women perform 76.2% of all unpaid care globally — a workload equivalent to $11 trillion per year if compensated (9% of global GDP). Each extra hour of care shrinks a woman's chance of paid work by 38%.</div>
+      <div class="card-src">Source: <a href="https://www.undp.org/latin-america/blog/missing-piece-valuing-womens-unrecognized-contribution-economy" target="_blank">UNDP</a> &middot; <a href="https://www.unwomen.org/en/articles/faqs/faqs-what-is-unpaid-care-work-and-how-does-it-power-the-economy" target="_blank">UN Women 2025</a></div>
+    </div>
+  </div>
+
+  <div class="grid-1">
+    <div class="card">
+      <div class="card-title">% of women outside labor force citing care as reason, by region</div>
+      <div class="card-sub">Women who are not in the labor force and give care responsibilities as primary reason · ILO 2024</div>
+      <div class="legend">
+        <span class="leg"><span class="leg-dot" style="background:#D85A30"></span>% citing care</span>
+      </div>
+      <div class="chart-wrap" style="height:240px"><canvas id="c-careregion"></canvas></div>
+      <div class="note amber">Northern Africa leads at 63%. Even in Northern America and Eastern Europe — where the share is lowest — tens of millions of women are still outside the workforce due to care responsibilities.</div>
+      <div class="card-src">Source: <a href="https://www.ilo.org/sites/default/files/2024-10/GEDI-STAT%20brief_formatted_28.10.24_final.pdf" target="_blank">ILO Statistical Brief, October 2024</a></div>
+    </div>
+  </div>
+
+  <!-- WORKPLACE & CONFIDENCE -->
+  <div class="section-head">Workplace advancement & confidence gap</div>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">Corporate pipeline: women's representation by level</div>
+      <div class="card-sub">% women at each career level · McKinsey / LeanIn Women in the Workplace 2025 · 124 US & Canadian companies</div>
+      <div class="legend">
+        <span class="leg"><span class="leg-dot" style="background:#7F77DD"></span>% women</span>
+        <span class="leg"><span class="leg-dot" style="background:#AFA9EC;opacity:.6"></span>Parity (50%)</span>
+      </div>
+      <div class="chart-wrap" style="height:240px"><canvas id="c-pipeline"></canvas></div>
+      <div class="note purple">For every 100 men promoted to manager, only 93 women are — and only 74 women of color. The "broken rung" at first promotion is the single biggest obstacle women face on the path to senior leadership.</div>
+      <div class="card-src">Source: <a href="https://www.mckinsey.com/featured-insights/diversity-and-inclusion/women-in-the-workplace" target="_blank">McKinsey & LeanIn.Org, Women in the Workplace 2025</a></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Desire for promotion: women vs. men by career level</div>
+      <div class="card-sub">% who want to be promoted to the next level · McKinsey / LeanIn 2025 · n=9,500</div>
+      <div class="legend">
+        <span class="leg"><span class="leg-dot" style="background:#7F77DD"></span>Women</span>
+        <span class="leg"><span class="leg-dot" style="background:#888780"></span>Men</span>
+      </div>
+      <div class="chart-wrap" style="height:240px"><canvas id="c-ambition"></canvas></div>
+      <div class="note purple">When women and men receive the same career support, this ambition gap disappears entirely. It reflects a support deficit, not a motivation deficit.</div>
+      <div class="card-src">Source: <a href="https://www.mckinsey.com/featured-insights/diversity-and-inclusion/women-in-the-workplace" target="_blank">McKinsey & LeanIn.Org, Women in the Workplace 2025</a></div>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">Salary negotiation: who asks and who gets</div>
+      <div class="card-sub">% of MBA alumni who negotiated vs. were turned down · UC Berkeley / Vanderbilt study 2024 · n≈2,000</div>
+      <div class="legend">
+        <span class="leg"><span class="leg-dot" style="background:#1D9E75"></span>Women</span>
+        <span class="leg"><span class="leg-dot" style="background:#888780"></span>Men</span>
+      </div>
+      <div class="chart-wrap" style="height:220px"><canvas id="c-negotiate"></canvas></div>
+      <div class="note teal">Women now negotiate more often than men — but get turned down at higher rates. "The gender difference in negotiation propensity cannot account for the gender pay gap." — Kray, Kennedy & Lee (2024)</div>
+      <div class="card-src">Source: <a href="https://vcresearch.berkeley.edu/news/new-research-shatters-outdated-pay-gap-myth-women-dont-negotiate" target="_blank">UC Berkeley / Vanderbilt, Academy of Management Discoveries 2024</a></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Impostor syndrome: women vs. men</div>
+      <div class="card-sub">% who have experienced impostor syndrome at work · multiple surveys 2023–2024</div>
+      <div class="legend">
+        <span class="leg"><span class="leg-dot" style="background:#7F77DD"></span>Women</span>
+        <span class="leg"><span class="leg-dot" style="background:#888780"></span>Men</span>
+      </div>
+      <div class="chart-wrap" style="height:220px"><canvas id="c-impostor"></canvas></div>
+      <div class="note purple">A 2024 meta-analysis of 108 studies and 40,000+ participants confirms women score significantly higher on impostor phenomenon scales (effect size d=0.27). The gap has not narrowed over time.</div>
+      <div class="card-src">Source: <a href="https://www.sciencedirect.com/science/article/pii/S2666518224000093" target="_blank">Price & Holcomb, Current Research in Behavioral Sciences 2024</a> &middot; <a href="https://womenincx.community/articles-and-blogs/2f9w5a6tiey7zu43vjsn9ym1n6ck5z" target="_blank">Women in CX 2024</a></div>
+    </div>
+  </div>
+
+  <!-- WEF ECONOMIC INDEX -->
+  <div class="section-head">WEF Global Gender Gap — economic dimensions over time</div>
+  <div class="grid-1">
+    <div class="card">
+      <div class="card-title">Economic participation & opportunity gap closed, 2006–2025</div>
+      <div class="card-sub">WEF Global Gender Gap Index subindexes · % of gap closed · 100 constant economies</div>
+      <div class="legend">
+        <span class="leg"><span class="leg-dot" style="background:#1D9E75"></span>Economic participation & opportunity</span>
+        <span class="leg"><span class="leg-dot" style="background:#D4537E"></span>Educational attainment</span>
+        <span class="leg"><span class="leg-dot" style="background:#888780;border:none"></span>Overall index</span>
+      </div>
+      <div class="chart-wrap" style="height:240px"><canvas id="c-wef-econ"></canvas></div>
+      <div class="note teal">Education has nearly reached parity (96%), yet women are still paid less and lead less. Economic participation — at 60.7% — has improved only 5.6 percentage points since 2006. Full economic parity is projected to take another 135 years at current pace.</div>
+      <div class="card-src">Source: <a href="https://www.weforum.org/publications/global-gender-gap-report-2025/" target="_blank">WEF Global Gender Gap Report 2025</a></div>
+    </div>
+  </div>
+
+  <!-- KEY MILESTONES -->
+  <div class="section-head">Key labor rights milestones</div>
+  <div class="grid-1">
+    <div class="card">
+      <div class="card-title">Major legislative & policy milestones for women's labor rights</div>
+      <div class="card-sub">Selected global milestones, 1963–2025</div>
+      <table>
+        <thead><tr><th>Year</th><th>Event</th><th>Country / Scope</th><th>Significance</th></tr></thead>
+        <tbody id="milestones-body"></tbody>
+      </table>
+      <div class="card-src">Sources: ILO, UN Women, Equal Rights Advocates, MSI Reproductive Choices</div>
+    </div>
+  </div>
+
+  <!-- REASONS FOR HOPE -->
+  <div class="section-head">Progress & reasons for hope</div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">Legal reforms advancing gender equality, 1995–2024</div>
+      <div class="card-sub">Cumulative count of legal reforms in 189 countries and territories · UN Women Beijing+30 review</div>
+      <div class="legend">
+        <span class="leg"><span class="leg-dot" style="background:#1D9E75"></span>Cumulative reforms</span>
+      </div>
+      <div class="chart-wrap" style="height:200px"><canvas id="c-reforms"></canvas></div>
+      <div class="note teal">1,531 legal reforms advancing gender equality were enacted globally between 1995 and 2024, across 189 countries — averaging more than 50 per year.</div>
+      <div class="card-src">Source: <a href="https://www.unwomen.org/en/news-stories/press-release/2025/03/one-in-four-countries-report-backlash-on-womens-rights-in-2024" target="_blank">UN Women, Women's Rights in Review: 30 Years After Beijing (2025)</a></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Economic return from closing gender gaps</div>
+      <div class="card-sub">Estimated GDP gains from achieving gender parity in key areas · World Bank / WEF / UN</div>
+      <div class="legend">
+        <span class="leg"><span class="leg-dot" style="background:#1D9E75"></span>Estimated economic gain</span>
+      </div>
+      <div class="chart-wrap" style="height:200px"><canvas id="c-gdp"></canvas></div>
+      <div class="note teal">The economic case for gender equality is unambiguous. Closing the labor-force participation gap alone could raise annual OECD growth by +0.23 percentage points (OECD 2025).</div>
+      <div class="card-src">Source: <a href="https://www.worldbank.org/" target="_blank">World Bank</a> &middot; <a href="https://www.weforum.org/stories/2025/03/political-power-and-economic-parity-we-need-more-women-leaders-for-the-future-of-jobs/" target="_blank">WEF 2025</a> &middot; <a href="https://social.desa.un.org/world-summit-2025/blog/invisible-yet-indispensable-why-the-world-runs-on-womens-unpaid-care-work" target="_blank">UN DESA 2025</a></div>
+    </div>
+  </div>
+
+  <div class="sources-section" id="sources">
+    <h2>Data sources</h2>
+    <div class="sources-grid" id="sources-grid"></div>
+  </div>
+
+</main>
+
+<footer>
+  International Women's Labor Rights Dashboard &middot; Women's History Month &middot; Data current as of 2024–2025
+</footer>
+
+<script>
+const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+const GRID = isDark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.06)';
+const TICK = isDark ? '#999' : '#666';
+const C = {
+  teal:'#1D9E75', tealL:'rgba(29,158,117,0.1)',
+  pink:'#D4537E', pinkL:'rgba(212,83,126,0.1)',
+  coral:'#D85A30',
+  purple:'#7F77DD', purpleL:'rgba(127,119,221,0.1)', purpleMid:'#AFA9EC',
+  amber:'#EF9F27',
+  gray:'#888780', grayL:'rgba(136,135,128,0.12)',
+  green:'#9FE1CB'
+};
+if(isDark){C.teal='#5DCAA5';C.pink='#ED93B1';C.coral='#F0997B';C.purple='#AFA9EC';C.purpleMid='#7F77DD';C.gray='#B4B2A9';C.green='rgba(93,202,165,0.3)';}
+
+function xax(rot){return{grid:{color:GRID},ticks:{color:TICK,font:{size:11},maxRotation:rot||0}};}
+function yax(min,max,cb){return{grid:{color:GRID},ticks:{color:TICK,font:{size:11},callback:cb||(v=>v+'%')},min,max};}
+function opts(xrot,ymin,ymax,ycb,ttcb){
+  return{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:false},tooltip:{callbacks:{label:ttcb||(c=>' '+(c.parsed.y??c.parsed.x).toFixed(1)+'%')}}},
+    scales:{x:xax(xrot),y:yax(ymin,ymax,ycb)}};
+}
+function horiz(ymin,ymax,ttcb){
+  return{responsive:true,maintainAspectRatio:false,indexAxis:'y',
+    plugins:{legend:{display:false},tooltip:{callbacks:{label:ttcb||(c=>' '+c.parsed.x.toFixed(1)+'%')}}},
+    scales:{y:{grid:{color:GRID},ticks:{color:TICK,font:{size:12}}},
+      x:{grid:{color:GRID},ticks:{color:TICK,font:{size:11},callback:v=>v+'%'},min:ymin,max:ymax}}};
+}
+
+/* US wage gap */
+new Chart('c-uswage',{type:'line',data:{
+  labels:['1960','1965','1970','1975','1980','1985','1990','1995','2000','2005','2010','2015','2020','2024'],
+  datasets:[
+    {data:[61,60,59,59,64,68,72,73,76,77,81,83,83,84],borderColor:C.teal,backgroundColor:C.tealL,borderWidth:2.5,pointRadius:3,pointBackgroundColor:C.teal,tension:0.3,fill:true},
+    {data:Array(14).fill(100),borderColor:C.green,borderWidth:1,borderDash:[5,5],pointRadius:0}
+  ]},
+  options:{...opts(0,50,105,v=>v+'¢',c=>c.datasetIndex===0?' '+c.parsed.y+'¢ per $1':' Equal pay: 100¢'),
+    scales:{x:xax(0),y:yax(50,105,v=>v+'¢')}}
+});
+
+/* Int'l wage comparison */
+new Chart('c-intwage',{type:'bar',data:{
+  labels:['Luxembourg','Romania','Belgium','Italy','OECD avg','EU avg','UK','US/Canada','Germany','Austria','Japan'],
+  datasets:[{data:[100.7,97,96,95,88,87,87,86,83,82,75],backgroundColor:C.teal,borderRadius:4}]},
+  options:{...opts(45,60,105,v=>v+'¢',c=>' '+c.parsed.y+'¢ per $1'),
+    scales:{x:{grid:{color:GRID},ticks:{color:TICK,font:{size:11},maxRotation:45,autoSkip:false}},y:yax(60,105,v=>v+'¢')}}
+});
+
+/* OECD trend */
+new Chart('c-oecdtrend',{type:'line',data:{
+  labels:['1995','1997','1999','2001','2003','2005','2007','2009','2011','2013','2015','2017','2019','2021','2023'],
+  datasets:[{data:[19,18.5,18,17.5,17,16.5,16,15.5,15,14,13.5,12.5,12,11.5,11],borderColor:C.teal,backgroundColor:C.tealL,borderWidth:2.5,pointRadius:3,pointBackgroundColor:C.teal,tension:0.3,fill:true}]},
+  options:{...opts(0,0,25,v=>v+'%',c=>' '+c.parsed.y.toFixed(1)+'% gap'),
+    scales:{x:xax(0),y:{grid:{color:GRID},ticks:{color:TICK,font:{size:11},callback:v=>v+'%'},min:0,max:25}}}
+});
+
+/* Wage factors */
+new Chart('c-wagefactors',{type:'bar',data:{
+  labels:['Occupational\nsegregation','Motherhood\npenalty','Career breaks\n& care','Discriminatory\nhiring & pay','Salary\nnegotiation gap'],
+  datasets:[{data:[35,25,20,12,8],backgroundColor:C.pink,borderRadius:4}]},
+  options:{...opts(0,0,45,v=>v+'%',c=>' ~'+c.parsed.y+'% contribution'),
+    scales:{x:{grid:{color:GRID},ticks:{color:TICK,font:{size:11}}},y:yax(0,45,v=>v+'%')}}
+});
+
+/* LFP trend */
+new Chart('c-lfp',{type:'line',data:{
+  labels:['1990','1993','1996','1999','2002','2005','2008','2011','2014','2017','2020','2022','2024'],
+  datasets:[
+    {label:'Women',data:[45.8,46.1,46.3,46.7,47.0,47.2,47.8,48.1,47.9,47.8,44.8,45.5,41.2],borderColor:C.pink,backgroundColor:C.pinkL,borderWidth:2.5,pointRadius:3,pointBackgroundColor:C.pink,tension:0.3,fill:true},
+    {label:'Men',data:[79.0,78.5,78.0,77.5,76.8,76.4,76.0,75.5,75.0,74.8,72.0,73.5,74.0],borderColor:C.gray,borderWidth:2,pointRadius:3,pointBackgroundColor:C.gray,tension:0.3}
+  ]},
+  options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>' '+c.dataset.label+': '+c.parsed.y.toFixed(1)+'%'}}},
+    scales:{x:xax(0),y:yax(30,90)}}
+});
+
+/* LFP by region */
+new Chart('c-lfpregion',{type:'bar',data:{
+  labels:['Nordic countries','N. America','Europe (OECD avg)','E. Asia & Pacific','Latin America','Sub-Saharan Africa','S. Asia','MENA'],
+  datasets:[{data:[76,57,71,60,53,63,30,19],backgroundColor:C.pink,borderRadius:4}]},
+  options:{...horiz(0,90,c=>' '+c.parsed.x+'%')}
+});
+
+/* 708M care */
+new Chart('c-care708',{type:'bar',data:{
+  labels:['Women kept out by care','Men kept out by care'],
+  datasets:[{data:[708,40],backgroundColor:[C.pink,C.gray],borderRadius:6}]},
+  options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>' '+c.parsed.y+'M people'}}},
+    scales:{x:{grid:{color:GRID},ticks:{color:TICK,font:{size:13}}},
+      y:{grid:{color:GRID},ticks:{color:TICK,font:{size:11},callback:v=>v+'M'},min:0,max:800}}}
+});
+
+/* Care hours */
+new Chart('c-carehours',{type:'bar',data:{
+  labels:['Women','Men'],
+  datasets:[{data:[4.42,1.38],backgroundColor:[C.pink,C.gray],borderRadius:6}]},
+  options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>{const h=Math.floor(c.parsed.y),m=Math.round((c.parsed.y-h)*60);return ' '+h+'h '+m+'m per day';}}}},
+    scales:{x:{grid:{color:GRID},ticks:{color:TICK,font:{size:13}}},
+      y:{grid:{color:GRID},ticks:{color:TICK,font:{size:11},callback:v=>v+'h'},min:0,max:6}}}
+});
+
+/* Care by region */
+new Chart('c-careregion',{type:'bar',data:{
+  labels:['Northern Africa','Arab States','Asia & Pacific','Latin Am. & Carib.','Europe & C. Asia','N. America','Eastern Europe'],
+  datasets:[{data:[63,59,52,47,21,19,11],backgroundColor:C.coral,borderRadius:4}]},
+  options:{...horiz(0,75,c=>' '+c.parsed.x+'%')}
+});
+
+/* Pipeline */
+new Chart('c-pipeline',{type:'bar',data:{
+  labels:['Entry level','Manager','Sr. Manager / Director','Vice President','SVP / C-suite'],
+  datasets:[
+    {data:[49,42,39,35,29],backgroundColor:C.purple,borderRadius:4,label:'% women'},
+    {data:Array(5).fill(50),type:'line',borderColor:C.purpleMid,borderDash:[5,5],borderWidth:1.5,pointRadius:0,fill:false}
+  ]},
+  options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.type==='line'?' Parity: 50%':' '+c.parsed.y+'% women'}}},
+    scales:{x:{grid:{color:GRID},ticks:{color:TICK,font:{size:11}}},y:yax(0,60)}}
+});
+
+/* Ambition */
+new Chart('c-ambition',{type:'bar',data:{
+  labels:['Entry level','Mid level','Senior level','All levels'],
+  datasets:[
+    {label:'Women',data:[69,78,84,80],backgroundColor:C.purple,borderRadius:4},
+    {label:'Men',data:[80,85,92,86],backgroundColor:C.gray,borderRadius:4}
+  ]},
+  options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>' '+c.dataset.label+': '+c.parsed.y+'%'}}},
+    scales:{x:{grid:{color:GRID},ticks:{color:TICK,font:{size:12}}},y:yax(50,100)}}
+});
+
+/* Negotiate */
+new Chart('c-negotiate',{type:'bar',data:{
+  labels:['Reported negotiating','Got turned down after asking'],
+  datasets:[
+    {label:'Women',data:[64,38],backgroundColor:C.teal,borderRadius:4},
+    {label:'Men',data:[59,24],backgroundColor:C.gray,borderRadius:4}
+  ]},
+  options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>' '+c.dataset.label+': '+c.parsed.y+'%'}}},
+    scales:{x:{grid:{color:GRID},ticks:{color:TICK,font:{size:12}}},y:yax(0,80)}}
+});
+
+/* Impostor */
+new Chart('c-impostor',{type:'bar',data:{
+  labels:['Women in CX study','4,000-adult study (women)','4,000-adult study (men)','Korn Ferry 10k (men)','Korn Ferry 10k (women)'],
+  datasets:[{data:[84,72,63,49,44],backgroundColor:[C.purple,C.purple,C.gray,C.gray,C.purple],borderRadius:4}]},
+  options:{...opts(20,0,100,v=>v+'%',c=>' '+c.parsed.y+'%'),
+    scales:{x:{grid:{color:GRID},ticks:{color:TICK,font:{size:11},maxRotation:20}},y:yax(0,100)}}
+});
+
+/* WEF econ */
+new Chart('c-wef-econ',{type:'line',data:{
+  labels:['2006','2008','2010','2012','2014','2016','2018','2020','2022','2024','2025'],
+  datasets:[
+    {label:'Economic participation',data:[55.1,57.0,58.1,60.3,60.0,58.9,58.5,57.0,60.3,60.0,60.7],borderColor:C.teal,borderWidth:2.5,pointRadius:3,tension:0.3},
+    {label:'Educational attainment',data:[94.0,95.1,95.8,96.2,96.5,97.0,96.9,96.2,94.4,96.1,96.1],borderColor:C.pink,borderWidth:2,pointRadius:2,tension:0.3},
+    {label:'Overall index',data:[64.1,65.5,66.4,67.6,68.3,68.0,68.1,68.7,68.1,68.6,69.0],borderColor:C.gray,borderWidth:2,borderDash:[6,3],pointRadius:2,tension:0.3}
+  ]},
+  options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>' '+c.dataset.label+': '+c.parsed.y.toFixed(1)+'%'}}},
+    scales:{x:xax(0),y:yax(50,100)}}
+});
+
+/* Reforms */
+new Chart('c-reforms',{type:'bar',data:{
+  labels:['1995','1998','2001','2004','2007','2010','2013','2016','2019','2022','2024'],
+  datasets:[{data:[0,45,110,200,320,480,680,900,1100,1350,1531],backgroundColor:C.teal,borderRadius:4}]},
+  options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>' '+c.parsed.y+' cumulative reforms'}}},
+    scales:{x:xax(0),y:{grid:{color:GRID},ticks:{color:TICK,font:{size:11},callback:v=>v},min:0,max:1700}}}
+});
+
+/* GDP gains */
+new Chart('c-gdp',{type:'bar',data:{
+  labels:['Close labor-force gap\n(global GDP)', 'Close digital gender gap\n(GDP + poverty)', 'Invest in care economy\n(jobs by 2035)', 'Equal pay for equal work\n(EU annual cost to women)'],
+  datasets:[{data:[20,1.5,300,4639],backgroundColor:C.teal,borderRadius:4}]},
+  options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>{const labels=['+20% global GDP','$1.5T global GDP gain','300M new jobs','$4,639/yr lost per woman'];return ' '+labels[c.dataIndex];}}}},
+    scales:{x:{grid:{color:GRID},ticks:{color:TICK,font:{size:10}}},
+      y:{grid:{color:GRID},ticks:{color:TICK,font:{size:11},callback:v=>v===0?'0':v>=100?v+'M':v>=1?'$'+v+'T':'$'+v+'T'},min:0,max:350}}}
+});
+
+/* Milestones */
+const milestones=[
+  ['1963','Equal Pay Act','United States','First federal law prohibiting wage discrimination by sex'],
+  ['1979','CEDAW adopted','189 countries','UN Convention on Elimination of All Forms of Discrimination Against Women — ratified by 189 nations'],
+  ['1993','ILO Convention 175','International','Part-time Work Convention — protecting part-time workers, majority of whom are women'],
+  ['2009','Lilly Ledbetter Fair Pay Act','United States','Reset statute of limitations on pay discrimination suits; sparked global pay transparency movement'],
+  ['2018','EU Pay Transparency Push','European Union','EC directive requiring employers to report gender pay gaps; enacted in 2023'],
+  ['2023','EU Pay Transparency Directive','European Union','Legally binding pay transparency and equal pay enforcement across EU member states'],
+  ['2024','ILO care economy data','International','ILO confirmed 708M women outside labor force due to care — largest global estimate to date'],
+  ['2025','UK decriminalizes self-managed abortion','United Kingdom','MPs voted to end prosecution of women who end their own pregnancies'],
+  ['2025','Malawi: abortion rights for survivors','Malawi','High Court ruling grants survivors of sexual violence under 18 the right to an abortion'],
+];
+const tb=document.getElementById('milestones-body');
+milestones.forEach((r,i)=>{
+  const tr=document.createElement('tr');
+  tr.style.cssText=`background:${i%2===0?'transparent':'var(--bg2)'}`;
+  tr.innerHTML=`<td style="padding:8px 10px;font-size:13px;white-space:nowrap">${r[0]}</td><td style="padding:8px 10px;font-size:13px;font-weight:500">${r[1]}</td><td style="padding:8px 10px;font-size:12px;color:var(--text2)">${r[2]}</td><td style="padding:8px 10px;font-size:12px;color:var(--text2)">${r[3]}</td>`;
+  tb.appendChild(tr);
+});
+
+/* Sources */
+const sources=[
+  {title:'ILO ILOSTAT',desc:'World\'s largest repository of labour market statistics including wages, LFP, and care work.',url:'https://ilostat.ilo.org/data/'},
+  {title:'ILO — Unpaid Care & Labour Force (2024)',desc:'Statistical brief on 708M women outside labor force due to care responsibilities.',url:'https://www.ilo.org/resource/news/unpaid-care-work-prevents-708-million-women-participating-labour-market'},
+  {title:'UN Equal Pay Day',desc:'UN data on the global 77¢ wage gap, unpaid care work statistics and motherhood penalty.',url:'https://www.un.org/en/observances/equal-pay-day'},
+  {title:'UN Women — Unpaid Care Work',desc:'FAQs and data on the motherhood penalty, unpaid care, and labor market exclusion.',url:'https://www.unwomen.org/en/articles/faqs/faqs-what-is-unpaid-care-work-and-how-does-it-power-the-economy'},
+  {title:'WEF Global Gender Gap Report 2025',desc:'Annual benchmarking across 148 economies including Economic Participation & Opportunity subindex.',url:'https://www.weforum.org/publications/global-gender-gap-report-2025/'},
+  {title:'OECD — Gender Wage Gap',desc:'Downloadable data on median wage gaps across OECD countries over time.',url:'https://www.oecd.org/en/data/indicators/gender-wage-gap.html'},
+  {title:'OECD — Gender Gaps in Paid and Unpaid Work 2025',desc:'Policy brief on structural factors driving wage and participation gaps.',url:'https://www.oecd.org/en/publications/gender-gaps-in-paid-and-unpaid-work-persist_25a6c5dc-en/full-report.html'},
+  {title:'McKinsey & LeanIn — Women in the Workplace 2025',desc:'11th annual study of women\'s representation in corporate America; pipeline, ambition, and support data.',url:'https://www.mckinsey.com/featured-insights/diversity-and-inclusion/women-in-the-workplace'},
+  {title:'Pew Research — US Gender Pay Gap 2025',desc:'Analysis of US wage gap trends using Census CPS data from 1982–2024.',url:'https://www.pewresearch.org/short-reads/2025/03/04/gender-pay-gap-in-us-has-narrowed-slightly-over-2-decades/'},
+  {title:'UC Berkeley / Vanderbilt — Negotiation Study 2024',desc:'Research shattering the myth that women don\'t negotiate; ~2,000 MBA alumni surveyed.',url:'https://vcresearch.berkeley.edu/news/new-research-shatters-outdated-pay-gap-myth-women-dont-negotiate'},
+  {title:'Price & Holcomb — Impostor Syndrome Meta-Analysis 2024',desc:'108 studies, 40,000+ participants confirming women score higher on impostor phenomenon scales.',url:'https://www.sciencedirect.com/science/article/pii/S2666518224000093'},
+  {title:'UN Women — Beijing+30 Report 2025',desc:'1,531 legal reforms since 1995; progress and backlash on women\'s rights globally.',url:'https://www.unwomen.org/en/news-stories/press-release/2025/03/one-in-four-countries-report-backlash-on-womens-rights-in-2024'},
+  {title:'World Bank Gender Data Portal',desc:'Country-level data on education, labor, health, and legal protections disaggregated by gender.',url:'https://genderdata.worldbank.org/'},
+  {title:'Our World in Data — Gender Wage Gap (ILO)',desc:'Interactive chart of ILO wage gap data by country over time; downloadable CSV.',url:'https://ourworldindata.org/grapher/gender-gap-in-average-wages-ilo'},
+];
+const sg=document.getElementById('sources-grid');
+sources.forEach(s=>{
+  const d=document.createElement('div');
+  d.className='source-item';
+  d.innerHTML=`<div class="s-title">${s.title}</div><div class="s-desc">${s.desc}</div><a href="${s.url}" target="_blank">Open source &rarr;</a>`;
+  sg.appendChild(d);
+});
+</script>
+</body>
+</html>
