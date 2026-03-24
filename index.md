@@ -45,7 +45,9 @@ and tech work for public health - still going strong
 totally changed my perspective
 * This led me to Duke's [MSEC](https://econ.duke.edu/masters-programs/degree-programs/msec) 
 program - economics meets computer science
-* Building entertaining and safe AI-powered talking toys at [Curio](https://heycurio.com/)
+* Early bet on AI: built talking toys at [Curio](https://heycurio.com/), where safety and delight had to coexist.
+* Putting together foundational ML infrastructure for GTM Orchestration with amazing folks at [LeanData](https://www.leandata.com/).
+* At [LeanData](https://www.leandata.com/) with a great team — building ML infrastructure for intelligent GTM Orchestration.
 </div>
 <img src="/assets/image/profile.jpg" alt="Pushkar Nimkar" class="profile-image">
 </div>
@@ -61,4 +63,3 @@ program - economics meets computer science
 ## Need a break?
 
 * Try [minesweeper](minesweeper.md)
-
