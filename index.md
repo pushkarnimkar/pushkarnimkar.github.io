@@ -47,7 +47,6 @@ totally changed my perspective
 program - economics meets computer science
 * Early bet on AI: built talking toys at [Curio](https://heycurio.com/), where safety and delight had to coexist.
 * Putting together foundational ML infrastructure for GTM Orchestration with amazing folks at [LeanData](https://www.leandata.com/).
-* At [LeanData](https://www.leandata.com/) with a great team — building ML infrastructure for intelligent GTM Orchestration.
 </div>
 <img src="/assets/image/profile.jpg" alt="Pushkar Nimkar" class="profile-image">
 </div>
