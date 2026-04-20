@@ -31,7 +31,7 @@
 
 Hello there 👋
 
-I am a developer, somewhat of a researcher, and recovering economics student
+I am a machine learning engineer, researcher, and a recovering economics student
 
 * Born and raised in [Thane](https://en.wikipedia.org/wiki/Thane)
 * Started Computer Engineering at [Pune Institute of Computer Technology (PICT)](https://pict.edu)
